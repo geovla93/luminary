@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "806652980056",
+    "project_id": "iluminaryai",
+    "storage_bucket": "iluminaryai.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:806652980056:android:21762a172446033a2cd32d",
+        "android_client_info": {
+          "package_name": "com.iluminary"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB6ULMEvcX1CBGI7FFVgRVAoq4yUVieZd8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
