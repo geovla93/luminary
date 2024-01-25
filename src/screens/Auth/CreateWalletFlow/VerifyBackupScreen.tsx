@@ -11,7 +11,7 @@ import VerifySecretPhrase from '@components/VerifySecretPhrase';
 import {randomNumbers} from '@utils/functions';
 import ConfirmBackup from '@components/ConfirmBackup';
 import {SCREENS} from '@screens/screens';
-import {useTemporaryWallet} from '@hooks/useTemporaryWallet';
+import {useTemporaryWallet} from '@hooks/wallet/useTemporaryWallet';
 
 const VerifyBackupScreen = ({navigation}: any) => {
   const {formatMessage} = useIntl();

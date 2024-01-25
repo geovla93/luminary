@@ -13,8 +13,8 @@ interface ITokenIdsPayload {
 
 export interface ITokensState {
   loading: boolean;
-  search: string;
   sortBy: SortTokenBy;
+  hideZeroBalance: boolean;
   tokens: any;
   tokenPrices: any;
   tokenIds: ITokenIds;
@@ -32,8 +32,8 @@ interface IWalletTokenPayload {
 
 const initialState: ITokensState = {
   loading: true,
-  search: '',
-  sortBy: 'price',
+  sortBy: 'value',
+  hideZeroBalance: false,
   tokens: {} as any,
   tokenPrices: {} as any,
   tokenIds: {} as ITokenIds,
@@ -52,9 +52,7 @@ const tokensSlice = createSlice({
     setTokenSort(state, action: PayloadAction<SortTokenBy>) {
       state.sortBy = action.payload;
     },
-    setTokenSearch(state, action: PayloadAction<string>) {
-      state.search = action.payload;
-    },
+
     setTokens(state, action: PayloadAction<IWalletTokenPayload>) {
       const newTokens = action.payload.tokens;
       const existingTokens = state.tokens[action.payload.walletKey];
@@ -63,7 +61,10 @@ const tokensSlice = createSlice({
       }
       for (const token of newTokens) {
         const tokenIndex = state.tokens[action.payload.walletKey].findIndex(
-          (t: any) => t.symbol === token.symbol,
+          (t: any) =>
+            t.symbol === token.symbol &&
+            t.contractAddress === token.contractAddress &&
+            t.chainId === token.chainId,
         );
 
         if (!state.tokens[action.payload.walletKey]) {
@@ -79,6 +80,20 @@ const tokensSlice = createSlice({
         }
       }
     },
+    setHideZeroBalance(state, action: PayloadAction<boolean>) {
+      state.hideZeroBalance = action.payload;
+    },
+    changeTokenVisibility(
+      state,
+      action: PayloadAction<{
+        walletKey: string;
+        tokenIndex: number;
+        visible: boolean;
+      }>,
+    ) {
+      const {walletKey, tokenIndex, visible} = action.payload;
+      state.tokens[walletKey][tokenIndex].visible = visible;
+    },
     setTokenPrices(state, action: PayloadAction<ITokenPrice>) {
       const tokens: any = action.payload;
       state.tokenPrices = tokens;
@@ -88,7 +103,6 @@ const tokensSlice = createSlice({
       state.tokens = {} as any;
       state.tokenPrices = {} as any;
       state.tokenIds = {} as ITokenIds;
-      state.search = '';
       state.sortBy = 'price';
     },
   },
@@ -101,7 +115,8 @@ export const {
   setTokenIds,
   resetTokens,
   setTokenSort,
-  setTokenSearch,
+  changeTokenVisibility,
+  setHideZeroBalance,
 } = tokensSlice.actions;
 
 export default tokensSlice.reducer;

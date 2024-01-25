@@ -1,7 +1,5 @@
-/* eslint-disable react/no-unstable-nested-components */
-import {useNavigation} from '@react-navigation/native';
 import React, {useState, useEffect} from 'react';
-import SquareButton from '@ui/core/components/SquareButton';
+import {useNavigation} from '@react-navigation/native';
 import {Image, SafeAreaView, StyleSheet, View} from 'react-native';
 import Input from '@ui/core/components/Input';
 import {List} from 'react-native-paper';
@@ -10,6 +8,7 @@ import {useIntl} from 'react-intl';
 import {colors} from '@ui/core/theme';
 import useApplication from '@hooks/useApplication';
 import {ELOCALE} from '@itypes/locale';
+import HeaderComponent from '@components/HeaderComponent';
 
 const LanguageScreen = () => {
   const navigation = useNavigation<any>();
@@ -18,6 +17,7 @@ const LanguageScreen = () => {
   const {locale, setAppLocale} = useApplication();
   const [langs, setLanguages] = useState(languagesList); // languagesList[
   const [filter, setFilter] = useState('');
+
   useEffect(() => {
     if (filter) {
       const _languages = languagesList.filter(lang =>
@@ -27,7 +27,6 @@ const LanguageScreen = () => {
     } else {
       setLanguages(languagesList);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filter]);
 
   const handleSetLocale = (_locale: ELOCALE) => {
@@ -37,10 +36,8 @@ const LanguageScreen = () => {
 
   return (
     <SafeAreaView style={styles.root}>
+      <HeaderComponent title="language" onBack={() => navigation.goBack()} />
       <View style={styles.container}>
-        <View style={styles.header}>
-          <SquareButton onPress={() => navigation.goBack()} icon="close" />
-        </View>
         <View style={styles.content}>
           <View>
             <Input

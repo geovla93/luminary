@@ -14,71 +14,8 @@ import {useIntl} from 'react-intl';
 import Notification from '@screens/Wallet/NotificationsScreen/components/Notification';
 import AINotification from '@screens/Wallet/NotificationsScreen/components/AINotification';
 
-const aiNotifications = [
-  {
-    id: 1,
-    title: 'Article title goes here',
-    description: 'Gabire et dolore magna aliqua laboris nisi ut aliquip',
-    type: 'hot',
-  },
-  {
-    id: 2,
-    title: 'Second title goes here',
-    description: 'Gabire et dolore magna aliqua laboris nisi ut aliquip',
-    type: 'important',
-  },
-  {
-    id: 3,
-    title: 'Third notification title goes here',
-    description: 'Gabire et dolore magna aliqua laboris nisi ut aliquip',
-    type: 'hot',
-  },
-];
-
-const regularNotifications = [
-  {
-    id: 1,
-    title: 'Criptonews',
-    description: 'Gabire et dolore magna aliqua laboris nisi ut aliquip',
-    image: 'https://picsum.photos/200',
-    date: new Date().toLocaleTimeString(),
-  },
-  {
-    id: 11,
-    title: 'Criptonews',
-    description: 'Gabire et dolore magna aliqua laboris nisi ut aliquip',
-    image: 'https://picsum.photos/200',
-    date: new Date().toLocaleTimeString(),
-  },
-  {
-    id: 12,
-    title: 'Criptonews',
-    description: 'Gabire et dolore magna aliqua laboris nisi ut aliquip',
-    image: 'https://picsum.photos/200',
-    date: new Date().toLocaleTimeString(),
-  },
-  {
-    id: 13,
-    title: 'Criptonews',
-    description: 'Gabire et dolore magna aliqua laboris nisi ut aliquip',
-    image: 'https://picsum.photos/200',
-    date: new Date().toLocaleTimeString(),
-  },
-  {
-    id: 14,
-    title: 'Criptonews',
-    description: 'Gabire et dolore magna aliqua laboris nisi ut aliquip',
-    image: 'https://picsum.photos/200',
-    date: new Date().toLocaleTimeString(),
-  },
-  {
-    id: 15,
-    title: 'Criptonews',
-    description: 'Gabire et dolore magna aliqua laboris nisi ut aliquip',
-    image: 'https://picsum.photos/200',
-    date: new Date().toLocaleTimeString(),
-  },
-];
+const aiNotifications: any[] = [];
+const regularNotifications: any[] = [];
 
 const NotificationsScreen = () => {
   const navigation = useNavigation<any>();
@@ -96,31 +33,50 @@ const NotificationsScreen = () => {
           Notifications
         </Typography>
         <View>
-          <Typography
-            sx={styles.sectionTitle}
-            variant="titleSmall"
-            color={colors.primary}>
-            {formatMessage({id: 'breg_notifications_title'})}
-          </Typography>
-          <ScrollView
-            horizontal={true}
-            style={{marginTop: 20}}
-            showsHorizontalScrollIndicator={false}>
-            {aiNotifications.map(notification => (
-              <AINotification
-                key={notification.id}
-                type={notification.type}
-                description={notification.description}
-                onPress={() => console.log('AI notification pressed')}
-                title={notification.title}
-              />
-            ))}
-          </ScrollView>
-          <FlatList
-            style={styles.list}
-            data={regularNotifications}
-            renderItem={item => <Notification item={item.item} />}
-          />
+          {aiNotifications?.length === 0 &&
+            regularNotifications?.length === 0 && (
+              <Typography
+                variant="titleSmall"
+                color={colors.primary}
+                sx={{marginTop: 20}}>
+                {formatMessage({
+                  id: 'no_notifications',
+                  defaultMessage: 'No notifications',
+                })}
+              </Typography>
+            )}
+
+          {aiNotifications?.length > 0 && (
+            <>
+              <Typography
+                sx={styles.sectionTitle}
+                variant="titleSmall"
+                color={colors.primary}>
+                {formatMessage({id: 'breg_notifications_title'})}
+              </Typography>
+              <ScrollView
+                horizontal={true}
+                style={{marginTop: 20}}
+                showsHorizontalScrollIndicator={false}>
+                {aiNotifications?.map(notification => (
+                  <AINotification
+                    key={notification.id}
+                    type={notification.type}
+                    description={notification.description}
+                    onPress={() => {}}
+                    title={notification.title}
+                  />
+                ))}
+              </ScrollView>
+            </>
+          )}
+          {regularNotifications?.length > 0 && (
+            <FlatList
+              style={styles.list}
+              data={regularNotifications}
+              renderItem={item => <Notification item={item.item} />}
+            />
+          )}
         </View>
       </View>
     </SafeAreaView>

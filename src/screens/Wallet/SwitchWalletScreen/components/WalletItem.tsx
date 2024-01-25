@@ -1,9 +1,12 @@
+import useApplication from '@hooks/useApplication';
 import {Typography} from '@ui/core/components';
+import {colors} from '@ui/core/theme';
 import React from 'react';
 import {StyleSheet, View} from 'react-native';
 import {List} from 'react-native-paper';
 
 const Description = ({item}: any) => {
+  const {priceDisplay} = useApplication();
   return (
     <View style={styles.desc}>
       <View style={styles.walletKind}>
@@ -11,7 +14,7 @@ const Description = ({item}: any) => {
       </View>
       <View style={styles.walletKind}>
         <Typography variant="bodySmall">
-          {item.balance.balance.toFixed(2)} USD
+          {priceDisplay(item.balance.balance)}
         </Typography>
       </View>
     </View>
@@ -19,7 +22,6 @@ const Description = ({item}: any) => {
 };
 
 const WalletItem = ({item, onPress}: any) => {
-  console.log('item', item);
   return (
     <List.Item
       style={styles.root}
@@ -35,11 +37,11 @@ const WalletItem = ({item, onPress}: any) => {
 
 const styles = StyleSheet.create({
   root: {
-    backgroundColor: '#15130E',
+    backgroundColor: colors.inverseOnSurface,
     borderRadius: 20,
   },
   walletKind: {
-    backgroundColor: '#1E1B18',
+    backgroundColor: '#2D2A24',
     borderRadius: 20,
     marginTop: 15,
     padding: 5,

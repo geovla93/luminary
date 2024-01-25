@@ -3,8 +3,6 @@ import {Text, View} from 'react-native';
 import WebView from 'react-native-webview';
 
 const WebScreen = ({route}: any) => {
-  console.log('WebScreen', route.params.visit);
-
   return (
     <View>
       <Text>WebScreen</Text>

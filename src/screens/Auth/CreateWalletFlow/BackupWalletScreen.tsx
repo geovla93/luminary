@@ -10,9 +10,16 @@ import SecretPhrase from '../../../components/SecretPhrase';
 import OnboardingHeader from '../../../components/OnboardingHeader';
 import CopyToClipboard from '../../../components/CopyToClipboard';
 import OnboardingSteps from '../../../components/OnboardingSteps';
-import {useTemporaryWallet} from '@hooks/useTemporaryWallet';
+import {useTemporaryWallet} from '@hooks/wallet/useTemporaryWallet';
 
-const BackupWalletScreen = ({navigation}: any) => {
+interface Props {
+  navigation: {
+    navigate: (screen: string) => void;
+    goBack: () => void;
+  };
+}
+
+const BackupWalletScreen = ({navigation}: Props) => {
   const {formatMessage} = useIntl();
   const {getSeedPhrase} = useTemporaryWallet();
   const [mnemonic, setMnemonic] = useState<string>('');
@@ -41,7 +48,12 @@ const BackupWalletScreen = ({navigation}: any) => {
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.content}>
-        <OnboardingSteps total={4} fill={1} />
+        <OnboardingSteps
+          showBack
+          onBack={() => navigation.goBack()}
+          total={4}
+          fill={1}
+        />
         <ScrollView>
           <OnboardingHeader
             title={'add_seed_phrase'}
@@ -61,7 +73,12 @@ const BackupWalletScreen = ({navigation}: any) => {
               id: 'backup_manually',
             })}
           </Button>
-          <Button size="small" sx={styles.skip} textColor="red" variant="text">
+          <Button
+            onPress={() => navigation.navigate(SCREENS.SECURE_CREATED_SCREEN)}
+            size="small"
+            sx={styles.skip}
+            textColor="red"
+            variant="text">
             {formatMessage({
               id: 'backup_later',
             })}

@@ -27,7 +27,6 @@ const AnimatedTabBarButton = ({children, ...others}: any) => {
     if (currentScreen === others.name) {
       animateButton();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentScreen]);
   return (
     <Animated.View style={{transform: [{scale: scale.current}]}}>

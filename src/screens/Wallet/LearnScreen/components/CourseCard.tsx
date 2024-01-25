@@ -20,9 +20,7 @@ const CourseCard = ({course}: {course: Course}) => {
           <Typography variant={'titleMedium'} sx={styles.cardTitle}>
             {course.name}
           </Typography>
-          <TouchableOpacity
-            onPress={() => console.log(`Pay ${course.price}`)}
-            style={styles.payButton}>
+          <TouchableOpacity onPress={() => {}} style={styles.payButton}>
             {
               <Typography variant={'bodySmall'} sx={styles.payButtonText}>
                 Pay {course.price}

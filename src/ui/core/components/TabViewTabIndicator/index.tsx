@@ -1,5 +1,5 @@
 import {NavigationState, SceneRendererProps} from 'react-native-tab-view';
-import {Animated, I18nManager, StyleSheet} from 'react-native';
+import {Animated, I18nManager, StyleSheet, ViewStyle} from 'react-native';
 import React from 'react';
 import {colors} from '@ui/core/theme';
 
@@ -13,9 +13,10 @@ const TabViewTabIndicator = (
   props: SceneRendererProps & {
     navigationState: State;
     getTabWidth: (i: number) => number;
+    indicatorStyle?: ViewStyle;
   },
 ) => {
-  const {position, navigationState, getTabWidth} = props;
+  const {position, navigationState, getTabWidth, indicatorStyle} = props;
   const inputRange = [0, 0.48, 0.49, 0.51, 0.52, 1, 1.48, 1.49, 1.51, 1.52, 2];
 
   const scale = position.interpolate({
@@ -49,7 +50,11 @@ const TabViewTabIndicator = (
         },
       ]}>
       <Animated.View
-        style={[styles.indicator, {opacity, transform: [{scale}]} as any]}
+        style={[
+          styles.indicator,
+          indicatorStyle,
+          {opacity, transform: [{scale}]} as any,
+        ]}
       />
     </Animated.View>
   );
@@ -62,6 +67,7 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: colors.background,
   },
   indicator: {
     backgroundColor: colors.primary,

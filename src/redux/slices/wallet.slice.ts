@@ -54,8 +54,10 @@ const walletSlice = createSlice({
       state.signature = action.payload;
     },
     setTotals(state, action: PayloadAction<any>) {
-      console.log(state.walletPairs[state.current].balance);
       state.walletPairs[state.current].balance = action.payload;
+    },
+    setBackedUp(state, action: PayloadAction<boolean>) {
+      state.walletPairs[state.current].backedUp = action.payload;
     },
     resetWallet(state) {
       state.state = 'initial';
@@ -67,7 +69,13 @@ const walletSlice = createSlice({
   },
 });
 
-export const {resetWallet, setSignature, addWallet, setProcessing, setTotals} =
-  walletSlice.actions;
+export const {
+  resetWallet,
+  setSignature,
+  addWallet,
+  setProcessing,
+  setTotals,
+  setBackedUp,
+} = walletSlice.actions;
 
 export default walletSlice.reducer;

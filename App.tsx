@@ -2,15 +2,25 @@ import React, {ReactElement} from 'react';
 import {Provider} from 'react-redux';
 import {IntlProvider} from 'react-intl';
 import {PersistGate} from 'reduxjs-toolkit-persist/integration/react';
-
 import {GestureHandlerRootView} from 'react-native-gesture-handler';
 import ThemeProvider from '@ui/core/components/theme-provider';
+
 import AppNavigator from './src/screens';
 import {useAppSelector} from './src/redux/hook';
 import {persistor, store} from './src/redux/store';
 import {languages} from './src/i18n';
-import WalletContextProvider from '@hooks/useWalletContext';
-import WalletAsUserProvider from '@hooks/useWalletAsUser';
+import * as Sentry from '@sentry/react-native';
+import AppMiddleware from '@components/AppMiddleware';
+import PinManagerProvider from '@components/PinManagerProvider';
+import AudioManager from '@components/AudioManager';
+import OnboardingProvider from '@hooks/useOnboarding';
+
+if (!__DEV__) {
+  Sentry.init({
+    dsn: 'https://57765d983ab6407c63e62d6eff14b801@o4506519534698496.ingest.sentry.io/4506519536271360',
+    tracesSampleRate: 1.0,
+  });
+}
 
 const AppWithLocale = () => {
   const {locale} = useAppSelector(state => state.application);
@@ -18,7 +28,15 @@ const AppWithLocale = () => {
   return (
     // @ts-ignore
     <IntlProvider locale={locale} messages={languages[locale]}>
-      <AppNavigator />
+      <AudioManager>
+        <OnboardingProvider>
+          <PinManagerProvider>
+            <AppMiddleware>
+              <AppNavigator />
+            </AppMiddleware>
+          </PinManagerProvider>
+        </OnboardingProvider>
+      </AudioManager>
     </IntlProvider>
   );
 };
@@ -28,13 +46,9 @@ function App(): ReactElement {
     <GestureHandlerRootView style={{flex: 1}}>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
-          <WalletContextProvider>
-            <ThemeProvider>
-              <WalletAsUserProvider>
-                <AppWithLocale />
-              </WalletAsUserProvider>
-            </ThemeProvider>
-          </WalletContextProvider>
+          <ThemeProvider>
+            <AppWithLocale />
+          </ThemeProvider>
         </PersistGate>
       </Provider>
     </GestureHandlerRootView>

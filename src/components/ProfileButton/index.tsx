@@ -57,13 +57,4 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     backgroundColor: 'rgba(34, 31, 26, 1)',
   },
-  fakeShadow: {
-    elevation: 2,
-    shadowColor: 'rgba(247, 230, 150, 1)',
-    shadowOffset: {width: 0, height: 1},
-    shadowRadius: 1,
-    shadowOpacity: 0.12,
-
-    borderRadius: 20,
-  },
 });

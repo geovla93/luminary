@@ -1,11 +1,13 @@
 import React from 'react';
-import {Text, View} from 'react-native';
+import {Image, Text, View} from 'react-native';
 import {PinCodeT} from './types';
-import {DEFAULT, millisToMinutesAndSeconds} from './common';
+import {DEFAULT} from './common';
 import Countdown from './components/Countdown';
+import {useIntl} from 'react-intl';
+import {Typography} from '@ui/core/components';
+import {colors} from '@ui/core/theme';
 
 const LockedLayout = ({
-  styles,
   options,
   textOptions,
   onClockFinish,
@@ -15,45 +17,47 @@ const LockedLayout = ({
   options?: PinCodeT.Options;
   onClockFinish: () => void;
 }) => {
+  const {formatMessage} = useIntl();
   return (
     <>
-      <View style={[DEFAULT.Styles.locked?.header, styles?.header]}>
-        <Text style={[DEFAULT.Styles.locked?.title, styles?.title]}>
-          {textOptions?.title}
-        </Text>
-        <Text style={[DEFAULT.Styles.locked?.subTitle, styles?.subTitle]}>
-          {textOptions?.subTitle
-            ?.replace(
-              '{{maxAttempt}}',
-              (
+      <View style={[DEFAULT.Styles.locked?.header]}>
+        <Image
+          resizeMode="contain"
+          style={{width: 300}}
+          source={require('@assets/locked.png')}
+        />
+        <Typography
+          fontWeight="bold"
+          variant="headlineMedium"
+          color={colors.onSecondary}>
+          {formatMessage({id: 'temporarily_locked'})}
+        </Typography>
+        <Typography mt={20} mb={20} color={colors.onSurface} textAlign="center">
+          {formatMessage(
+            {id: 'temporary_locked_subtitle'},
+            {
+              maxAttempt: (
                 options?.maxAttempt ||
                 DEFAULT.Options.maxAttempt ||
                 5
               ).toString(),
-            )
-            .replace(
-              '{{lockDuration}}',
-              millisToMinutesAndSeconds(
-                options?.lockDuration || DEFAULT.Options.lockDuration || 60000,
-              ),
-            )}
-        </Text>
+            },
+          )}
+        </Typography>
       </View>
-      <View style={[DEFAULT.Styles.locked?.content, styles?.content]}>
+      <View style={DEFAULT.Styles.locked?.content}>
         {options?.lockIcon || (
-          <Text style={[DEFAULT.Styles.locked?.lock, styles?.lock]}>
-            {textOptions?.lockedText}
-          </Text>
+          <Typography
+            textAlign="center"
+            color={colors.primary}
+            fontWeight="bold">
+            {formatMessage({id: 'temporary_locked_remaining'})}
+          </Typography>
         )}
-        <Countdown
-          style={styles?.countdown}
-          textStyle={styles?.countdownText}
-          duration={options?.lockDuration}
-          onFinish={onClockFinish}
-        />
+        <Countdown duration={options?.lockDuration} onFinish={onClockFinish} />
       </View>
-      <View style={[DEFAULT.Styles.locked?.footer, styles?.footer]}>
-        <Text style={[DEFAULT.Styles.locked?.footerText]}>
+      <View style={DEFAULT.Styles.locked?.footer}>
+        <Text style={DEFAULT.Styles.locked?.footerText}>
           {textOptions?.footerText}
         </Text>
       </View>

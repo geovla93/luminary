@@ -4,7 +4,8 @@ import CreateWalletFlow from './CreateWalletFlow';
 import AuthRootScreen from './AuthRoot';
 import {SCREENS} from '../screens';
 import RecoverWalletFlow from './RecoverWalletScreen';
-import TemporaryWalletProvider from '@hooks/useTemporaryWallet';
+import TemporaryWalletProvider from '@hooks/wallet/useTemporaryWallet';
+import GetStartedScreen from './GetStarted';
 
 const AuthNavigator = createNativeStackNavigator();
 
@@ -15,6 +16,10 @@ const AuthNavigatorStack = () => {
         screenOptions={{
           headerShown: false,
         }}>
+        <AuthNavigator.Screen
+          name={SCREENS.GET_STARTED_SCREEN}
+          component={GetStartedScreen}
+        />
         <AuthNavigator.Screen
           name={SCREENS.ONBOARDING_SCREEN}
           component={AuthRootScreen}

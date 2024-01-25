@@ -123,7 +123,6 @@ const useDapps = () => {
     setDapps(MOCK_DAPPS.dapps);
     setFeatured(MOCK_DAPPS.featured);
     setHot(MOCK_DAPPS.dapps);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const openDapp = (dapp: IDapp) => {

@@ -8,17 +8,18 @@ import {it, expect, beforeAll} from '@jest/globals';
 
 import WalletManager from 'src/blockchain/evm/WalletManager';
 import {HDNodeWallet, verifyMessage} from 'ethers';
+import {DEFAULT_DERIVATION_PATH} from 'src/configs/security';
 
 let manager: WalletManager;
 
 beforeAll(async () => {
   manager = new WalletManager();
-  const wallet = await manager.createWallet();
+  const wallet = await manager.createWallet(DEFAULT_DERIVATION_PATH);
   expect(wallet).not.toBeNull();
 });
 
 it('it has the right derivation path', async () => {
-  expect(manager.getDerivationPath()).toBe("m/44'/60'/0'/0/0");
+  expect(manager.getDerivationPath()).toBe(DEFAULT_DERIVATION_PATH);
 });
 
 it('it has the right address', async () => {
@@ -52,8 +53,8 @@ it('can be recovered', async () => {
   const recovered = new WalletManager();
   const wallet = await recovered.recoverWallet(
     manager.getMnemonic().phrase,
-    '0',
+    DEFAULT_DERIVATION_PATH,
   );
-  expect(recovered.derivationPath).toBe("m/44'/60'/0'/0/0");
+  expect(recovered.derivationPath).toBe(DEFAULT_DERIVATION_PATH);
   expect(wallet?.address).toBe(manager.getAddress());
 });

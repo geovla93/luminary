@@ -1,100 +1,91 @@
-import React from 'react';
-import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
-import {Typography} from '@ui/core/components';
-import {ScrollView} from 'react-native';
-import {useTheme, MD3Theme, Chip} from 'react-native-paper';
+import React, {useEffect} from 'react';
+import {
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  View,
+} from 'react-native';
 
-const NFTS = [
-  {
-    rank: 12,
-    name: 'iLuminary #124',
-    collection: 'Luminary Legion',
-    image:
-      'https://i.nfte.ai/ia/l201/2114295/4006134466610048061_1497195170.avif',
-  },
-  {
-    rank: 13,
-    name: 'iLuminary #325',
-    collection: 'Harmonious Horde',
-    image:
-      'https://i.nfte.ai/ia/l201/2114295/4006134466662062493_1289259021.avif',
-  },
-  {
-    rank: 134,
-    name: 'iLuminary #235',
-    collection: 'The Creative Conclave',
-    image:
-      'https://i.nfte.ai/ia/l201/2114295/4006134466615410061_2136820856.avif',
-  },
-  {
-    rank: 1315,
-    name: 'iLuminary #156',
-    collection: 'The Compassionate',
-    image:
-      'https://i.nfte.ai/ia/l201/2114295/4006134466416695709_1577202549.avif',
-  },
-];
+import useNfts from '@hooks/useNfts';
+import NftChainPicker from './components/NftChainPicker';
+import {IBlockchain} from '@itypes/blockchain';
+import NftCollectionItem from './components/NftCollectionItem';
+import EmptyListComponent from './components/ListEmpty';
+import {useWalletContext} from '@hooks/useWalletContext';
+import {useWalletAsUser} from '@hooks/useWalletAsUser';
+
 const DigitalCollectibles = () => {
-  const theme = useTheme();
-  const styles = useStyles(theme);
+  const styles = useStyles();
+  const {current} = useWalletContext();
+  const {user} = useWalletAsUser();
+  const {
+    collections,
+    blockchain,
+    nftChains,
+    getUserNfts,
+    getChainCollection,
+    switchChain,
+  } = useNfts();
+  const [userCollections, setUserCollections] = React.useState<any[]>([]);
+  useEffect(() => {
+    if (current && user.token) {
+      getUserNfts();
+    }
+  }, [current, user.token]);
+
+  useEffect(() => {
+    const cols = getChainCollection();
+    setUserCollections(cols);
+  }, [collections, blockchain]);
+
+  const handlePress = (chain: IBlockchain) => {
+    switchChain(chain.shortName);
+  };
+
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <KeyboardAvoidingView
+        style={{flex: 1}}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 50 : undefined}>
+        <NftChainPicker
+          nftChains={nftChains}
+          onPress={handlePress}
+          selected={blockchain}
+        />
         <View style={styles.content}>
-          {NFTS.map((nft, index) => (
-            <View style={[styles.item, styles.fakeShadow]} key={`nft-${index}`}>
-              <TouchableOpacity
-                style={styles.shadow}
-                onPress={() => console.log('NFG')}>
-                <Image style={styles.itemImage} source={{uri: nft.image}} />
-                <Chip textStyle={styles.chipText} style={styles.chip}>
-                  #{nft.rank}
-                </Chip>
-                <View style={{padding: 8}}>
-                  <Typography
-                    sx={{
-                      fontWeight: '700',
-                      fontSize: 14,
-                      fontFamily: 'Roboto-Medium',
-                    }}
-                    variant="titleSmall">
-                    {nft.name}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      fontWeight: '300',
-                      fontSize: 12,
-                      color: 'rgba(236, 225, 207, 1)',
-                      fontFamily: 'Roboto-Medium',
-                    }}
-                    variant="bodySmall">
-                    {nft.collection}
-                  </Typography>
-                </View>
-              </TouchableOpacity>
-            </View>
-          ))}
+          <FlatList
+            data={userCollections}
+            numColumns={2}
+            ListEmptyComponent={EmptyListComponent}
+            style={{
+              width: '100%',
+              minHeight: '100%',
+            }}
+            showsVerticalScrollIndicator={false}
+            renderItem={({item}) => <NftCollectionItem collection={item} />}
+          />
         </View>
-      </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 };
 
-const useStyles = (theme: MD3Theme) =>
+const useStyles = () =>
   StyleSheet.create({
     container: {
-      // marginVertical: 20,
-      marginTop: 10,
-      padding: 3,
       flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
+      marginVertical: 5,
+      marginHorizontal: 10,
     },
     content: {
       marginVertical: 10,
       flexDirection: 'row',
       flexWrap: 'wrap',
-      justifyContent: 'space-between',
+      paddingHorizontal: 10,
     },
     item: {
       borderRadius: 10,
@@ -106,10 +97,11 @@ const useStyles = (theme: MD3Theme) =>
     },
     shadow: {
       elevation: 2,
-      shadowColor: 'rgba(236, 194, 72, 0.12)',
-      shadowOffset: {width: 0, height: 10},
-      shadowRadius: 5,
-      shadowOpacity: 0.6,
+      shadowColor: 'rgba(236, 194, 72, 1)',
+      shadowOffset: {width: 0, height: 1},
+      shadowRadius: 1,
+      shadowOpacity: 0.3,
+      backgroundColor: 'rgba(34, 31, 26, 1)',
     },
     fakeShadow: {
       elevation: 2,
@@ -120,7 +112,7 @@ const useStyles = (theme: MD3Theme) =>
     },
     itemImage: {
       width: '100%',
-      height: 170,
+      height: 150,
       borderTopRightRadius: 10,
       borderTopLeftRadius: 10,
       objectFit: 'cover',

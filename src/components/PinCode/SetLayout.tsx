@@ -1,9 +1,12 @@
 import React, {useState} from 'react';
-import {Platform, Text, Vibration, View} from 'react-native';
+import {Image, Platform, Text, Vibration, View} from 'react-native';
 import {PinCodeT} from './types';
 import {DEFAULT} from './common';
 import NumberButtons from './components/NumbersPanel';
 import Pin from './components/Pin';
+import {Typography} from '@ui/core/components';
+import {colors} from '@ui/core/theme';
+import {useIntl} from 'react-intl';
 
 const SetLayout = ({
   pin,
@@ -26,6 +29,7 @@ const SetLayout = ({
   onSet: (newPin: string) => void;
   onReset: () => void;
 }) => {
+  const {formatMessage} = useIntl();
   const [curPin, setCurPin] = useState('');
   const [lastPin, setLastPin] = useState('');
   const [status, setStatus] = useState<PinCodeT.Statuses>(
@@ -74,29 +78,38 @@ const SetLayout = ({
 
   return (
     <>
-      <View style={[DEFAULT.Styles.enter?.header, styles?.header]}>
-        <Text style={[DEFAULT.Styles.enter?.title, styles?.title]}>
-          {mode == PinCodeT.Modes.Enter
-            ? textOptions.enter?.title
-            : textOptions.set?.title}
-        </Text>
+      <View style={[DEFAULT.Styles.enter?.header]}>
+        <Image
+          style={{marginBottom: 40, width: 200, height: 50}}
+          resizeMode="contain"
+          source={require('@assets/logo-text.png')}
+        />
+        <Typography
+          fontWeight="bold"
+          variant="headlineLarge"
+          color={colors.onSecondary}>
+          {status === PinCodeT.Statuses.Initial
+            ? formatMessage({id: 'setup_new_pin'})
+            : formatMessage({id: 'confirm_new_pin'})}
+        </Typography>
         {status == PinCodeT.Statuses.Initial && (
-          <Text style={[DEFAULT.Styles.enter?.subTitle, styles?.subTitle]}>
-            {textOptions.set?.subTitle?.replace(
-              '{{pinLength}}',
-              (options?.pinLength || DEFAULT.Options.pinLength || 4).toString(),
-            )}
-          </Text>
+          <Typography textAlign="center" mt={8} color={colors.onSurface}>
+            {formatMessage({
+              id: 'setup_new_pin_info',
+            })}
+          </Typography>
         )}
         {status == PinCodeT.Statuses.SetOnce && (
-          <Text style={[DEFAULT.Styles.enter?.subTitle, styles?.subTitle]}>
-            {textOptions.set?.repeat}
-          </Text>
+          <Typography mt={8} color={colors.onSurface}>
+            {formatMessage({
+              id: 'confirm_new_pin_info',
+            })}
+          </Typography>
         )}
         {showError && (
-          <Text style={[DEFAULT.Styles.enter?.errorText, styles?.errorText]}>
+          <Typography mt={10} color={colors.primary}>
             {textOptions.set?.error}
-          </Text>
+          </Typography>
         )}
       </View>
       <View style={[DEFAULT.Styles.enter?.content, styles?.content]}>
@@ -118,13 +131,15 @@ const SetLayout = ({
           textStyle={styles?.buttonText}
         />
       </View>
-      <View style={[DEFAULT.Styles.enter?.footer, styles?.footer]}>
-        <Text
-          onPress={cancel}
-          style={[DEFAULT.Styles.set?.footerText, styles?.footerText]}>
-          {textOptions.set?.cancel}
-        </Text>
-      </View>
+      {typeof onSetCancel === 'function' && (
+        <View style={[DEFAULT.Styles.enter?.footer, styles?.footer]}>
+          <Text
+            onPress={cancel}
+            style={[DEFAULT.Styles.set?.footerText, styles?.footerText]}>
+            {textOptions.set?.cancel}
+          </Text>
+        </View>
+      )}
     </>
   );
 };

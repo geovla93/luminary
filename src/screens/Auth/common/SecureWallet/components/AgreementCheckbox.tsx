@@ -23,36 +23,42 @@ const AgreementCheckbox = ({
         uncheckedColor={colors.primary}
         onPress={onPress}
       />
-      <Typography sx={styles.agreement} variant="bodySmall">
-        {formatMessage({
-          id: 'agreement',
-        })}
+      <View style={{flexWrap: 'wrap', flexDirection: 'row', marginLeft: 20}}>
+        <Typography sx={styles.agreement} variant="bodySmall">
+          {formatMessage({
+            id: 'agreement',
+          })}
+        </Typography>
         <TouchableOpacity
           style={styles.pressable}
           onPress={() => openLink(links.terms)}>
           <Typography
             variant="bodySmall"
-            sx={[styles.agreement, {color: colors.primary}]}>
+            color={colors.primary}
+            sx={styles.agreement}>
             {formatMessage({
               id: 'terms',
             })}
           </Typography>
         </TouchableOpacity>
-        {formatMessage({
-          id: 'and',
-        })}
+        <Typography sx={styles.agreement} variant="bodySmall">
+          {formatMessage({
+            id: 'and',
+          })}
+        </Typography>
         <TouchableOpacity
           style={styles.pressable}
           onPress={() => openLink(links.privacy)}>
           <Typography
             variant="bodySmall"
-            sx={[styles.agreement, {color: colors.primary}]}>
+            color={colors.primary}
+            sx={styles.agreement}>
             {formatMessage({
               id: 'privacy',
             })}
           </Typography>
         </TouchableOpacity>
-      </Typography>
+      </View>
     </View>
   );
 };
@@ -63,12 +69,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
   },
-  pressable: {
-    paddingTop: 4,
-  },
+  pressable: {},
   agreement: {
     fontSize: 10,
     textAlign: 'center',
+    lineHeight: 16,
   },
 });
 

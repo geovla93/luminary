@@ -1,12 +1,13 @@
+import React from 'react';
+import useApplication from '@hooks/useApplication';
 import {SCREENS} from '@screens/screens';
 import {Typography} from '@ui/core/components';
-import React from 'react';
-import {useIntl} from 'react-intl';
-import {Image, StyleSheet, TouchableOpacity, View} from 'react-native';
+import {StyleSheet, TouchableOpacity, View, Image} from 'react-native';
 
 const TokenItem = ({item, tokenPrices, navigation}: any) => {
-  const {formatNumber} = useIntl();
+  const {priceDisplay, balanceDisplay, currency} = useApplication();
   const priceData = tokenPrices[item.id] || {};
+
   return (
     <TouchableOpacity
       onPress={() =>
@@ -17,48 +18,46 @@ const TokenItem = ({item, tokenPrices, navigation}: any) => {
       style={styles.itemContainer}>
       <View style={styles.itemName}>
         <View style={styles.logoContainer}>
-          <Image source={{uri: item.image}} style={styles.logo} />
-          {item.type !== 'NATIVE' && (
-            <Image source={{uri: item.chainImage}} style={styles.chainLogo} />
-          )}
+          <Image
+            source={{
+              uri: item.image,
+            }}
+            style={styles.logo}
+          />
+          {/* {item.type !== 'NATIVE' && ( */}
+          <Image source={{uri: item.chainImage}} style={styles.chainLogo} />
+          {/* )} */}
         </View>
         <View style={styles.tokenData}>
           <View style={styles.titleAndChange}>
             <Typography sx={{fontWeight: 'bold', fontFamily: 'Roboto-Medium'}}>
               {item.symbol.toUpperCase()}
             </Typography>
-            <View style={styles.change}>
-              <Typography
-                sx={{
-                  color: priceData?.usd_24h_change >= 0 ? '#4DEF7A' : '#e25241',
-                  fontWeight: '600',
-                  textAlign: 'right',
-                  fontSize: 11,
-                }}>
-                {priceData?.usd_24h_change >= 0 ? '+' : ''}
-                {priceData?.usd_24h_change?.toFixed(2)}%
-              </Typography>
-            </View>
+            {priceData?.usd_24h_change !== undefined && (
+              <View style={styles.change}>
+                <Typography
+                  sx={{
+                    color:
+                      priceData?.usd_24h_change >= 0 ? '#4DEF7A' : '#e25241',
+                    fontWeight: '600',
+                    textAlign: 'right',
+                    fontSize: 11,
+                  }}>
+                  {priceData?.usd_24h_change >= 0 ? '+' : ''}
+                  {priceData?.usd_24h_change?.toFixed(2)}%
+                </Typography>
+              </View>
+            )}
           </View>
           <Typography variant="titleSmall" sx={styles.currentPrice}>
-            {formatNumber(priceData?.usd, {
-              style: 'currency',
-              currency: 'USD',
-              minimumFractionDigits: 3,
-              maximumFractionDigits: 3,
-            })}
+            {priceDisplay(priceData[currency], {showCurrency: true})}
           </Typography>
         </View>
       </View>
 
       <View style={styles.itemHoldings}>
         <Typography sx={styles.price}>
-          {formatNumber(item.balance * priceData.usd, {
-            style: 'currency',
-            currency: 'USD',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          })}
+          {priceDisplay(item.balance * priceData.usd)}
         </Typography>
         <Typography
           sx={{
@@ -66,10 +65,8 @@ const TokenItem = ({item, tokenPrices, navigation}: any) => {
             textAlign: 'right',
             fontSize: 12,
           }}>
-          {formatNumber(item.balance, {
-            style: 'decimal',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
+          {balanceDisplay(item.balance, {
+            maxFractionDigits: 3,
           })}
         </Typography>
       </View>
@@ -81,7 +78,7 @@ const styles = StyleSheet.create({
   itemContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    marginVertical: 5,
   },
   itemHoldings: {
     flex: 1,
@@ -122,8 +119,8 @@ const styles = StyleSheet.create({
     borderRadius: 5,
   },
   chainLogo: {
-    width: 20,
-    height: 20,
+    width: 15,
+    height: 15,
     right: -5,
     bottom: -5,
     borderRadius: 50,

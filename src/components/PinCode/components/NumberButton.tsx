@@ -1,6 +1,7 @@
 import React from 'react';
 import {Text, TextStyle, StyleProp, Pressable, ViewStyle} from 'react-native';
 import {DEFAULT} from '../common';
+import {colors} from '@ui/core/theme';
 
 const NumberButton = ({
   value,
@@ -47,7 +48,8 @@ const NumberButton = ({
       style={({pressed}) => [
         DEFAULT.Styles.enter?.button,
         {
-          backgroundColor: disabled ? 'rgba(255,255,255,0.5)' : '#FFF',
+          backgroundColor: disabled ? 'rgba(255,255,255,0.9)' : colors.primary,
+          color: disabled ? colors.onSurface : colors.surface,
           opacity: pressed ? 0.5 : 1,
         },
         style,

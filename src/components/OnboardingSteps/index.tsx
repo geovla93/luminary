@@ -21,21 +21,24 @@ const OnboardingSteps = ({total, fill, showBack, onBack}: Props) => {
             onPress={() => (typeof onBack === 'function' ? onBack() : {})}
             containerColor={xcolors['N-12']}
             iconColor={colors.primary}
-            size={scale(25)}
+            size={scale(20)}
             style={{borderRadius: 16, elevation: 2}}
             mode="contained"
             icon="arrow-left"
           />
         </View>
       )}
-      {Array(total)
-        .fill(0)
-        .map((_, index) => (
-          <View
-            key={index}
-            style={[styles.step, {opacity: index < fill ? 1 : 0.2}]}
-          />
-        ))}
+      <View style={styles.steps}>
+        {Array(total)
+          .fill(0)
+          .map((_, index) => (
+            <View
+              key={index}
+              style={[styles.step, {opacity: index < fill ? 1 : 0.2}]}
+            />
+          ))}
+      </View>
+      <View />
     </View>
   );
 };
@@ -43,7 +46,7 @@ const OnboardingSteps = ({total, fill, showBack, onBack}: Props) => {
 const styles = StyleSheet.create({
   root: {
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
     marginBottom: verticalScale(10),
     paddingTop: verticalScale(10),
@@ -56,11 +59,14 @@ const styles = StyleSheet.create({
     marginHorizontal: scale(5),
     backgroundColor: colors.primary,
   },
-  backIcon: {
+  steps: {
+    flexDirection: 'row',
     justifyContent: 'center',
-    position: 'absolute',
+    alignItems: 'center',
+  },
+  backIcon: {
     top: 0,
-    left: scale(0),
+    left: 0,
   },
 });
 

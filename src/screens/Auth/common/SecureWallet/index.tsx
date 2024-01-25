@@ -9,30 +9,45 @@ import {SCREENS} from '@screens/screens';
 import OnboardingSteps from '@components/OnboardingSteps';
 
 import {usePinManager} from '@components/PinManagerProvider';
-import {useTemporaryWallet} from '@hooks/useTemporaryWallet';
+import {useTemporaryWallet} from '@hooks/wallet/useTemporaryWallet';
+import {useToast} from 'react-native-toast-notifications';
+import {Icon} from 'react-native-paper';
 
 const SecureWalletScreen = ({navigation}: any) => {
   const {formatMessage} = useIntl();
+  const toast = useToast();
 
   const [canUseBiometrics, setCanUseBiometrics] = useState(false);
-  const {mode, securedStoreWalletData} = useTemporaryWallet();
+  const {mode, securedStoreWalletData, resetTemporaryWalletState} =
+    useTemporaryWallet();
   const {handleSetPin} = usePinManager();
   const [checked, setChecked] = useState(false);
 
   const handleNext = async (pin: string, withBiometrics: boolean) => {
-    try {
-      if (mode === 'recovering') {
-        securedStoreWalletData(pin, withBiometrics).then(() => {
-          navigation.navigate(SCREENS.COMPLETED_RECOVERY_SCREEN);
+    securedStoreWalletData(pin, withBiometrics)
+      .then(() => {
+        navigation.navigate(
+          mode === 'recovering'
+            ? SCREENS.COMPLETED_RECOVERY_SCREEN
+            : SCREENS.COMPLETED_WALLET_SCREEN,
+        );
+      })
+      .catch(_err => {
+        resetTemporaryWalletState();
+        navigation.navigate(SCREENS.AUTH_ROOT_SCREEN, {
+          screen: SCREENS.ONBOARDING_SCREEN,
         });
-      } else {
-        securedStoreWalletData(pin, withBiometrics).then(() => {
-          navigation.navigate(SCREENS.COMPLETED_WALLET_SCREEN);
+        toast.show('Error while creating wallet', {
+          type: 'danger',
+          placement: 'top',
+          animationType: 'slide-in',
+          icon: <Icon source="alert-circle-outline" size={24} color="#fff" />,
+          dangerColor: '#d32f2f',
+          style: {
+            width: '100%',
+          },
         });
-      }
-    } catch (err) {
-      console.log(err);
-    }
+      });
   };
 
   const openPinSetup = (enableBiometrics: boolean) => {
@@ -86,6 +101,7 @@ const SecureWalletScreen = ({navigation}: any) => {
             <Button
               variant="elevated"
               disabled={!checked}
+              textColor="#fff"
               onPress={() => openPinSetup(false)}
               sx={{marginTop: 20}}>
               {formatMessage({

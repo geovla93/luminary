@@ -1,6 +1,5 @@
-import React, {PropsWithChildren} from 'react';
+import React, {PropsWithChildren, useMemo} from 'react';
 import {TextStyle} from 'react-native';
-
 import {Text} from 'react-native-paper';
 import {VariantProp} from 'react-native-paper/lib/typescript/components/Typography/types';
 
@@ -10,35 +9,57 @@ type ITypography = PropsWithChildren<{
   textAlign?: 'auto' | 'left' | 'right' | 'center' | 'justify';
   fontWeight?: 'bold' | '100' | '200' | '300' | '400' | '500' | '600' | '700';
   color?: string;
+  mt?: number;
+  mb?: number;
+  mr?: number;
+  ml?: number;
+  pt?: number;
+  pb?: number;
+  pr?: number;
+  pl?: number;
+  onPress?: () => void | undefined | null;
 }>;
 
 const Typography = ({
   children,
-  sx,
-  variant,
+  sx = {},
+  variant = 'bodyMedium',
+  textAlign = 'auto',
   fontWeight,
-  textAlign,
   color,
+  mt,
+  mb,
+  mr,
+  ml,
+  pt,
+  pb,
+  pr,
+  pl,
+  onPress,
 }: ITypography) => {
-  const others: any = {};
-  if (fontWeight) {
-    others.fontWeight = fontWeight;
-  }
-  if (color) {
-    others.color = color;
-  }
+  const style = useMemo(
+    () => ({
+      ...sx,
+      ...(textAlign ? {textAlign} : {}),
+      ...(fontWeight ? {fontWeight} : {}),
+      ...(color ? {color} : {}),
+      ...(mt !== undefined ? {marginTop: mt} : {}),
+      ...(mb !== undefined ? {marginBottom: mb} : {}),
+      ...(mr !== undefined ? {marginRight: mr} : {}),
+      ...(ml !== undefined ? {marginLeft: ml} : {}),
+      ...(pt !== undefined ? {paddingTop: pt} : {}),
+      ...(pb !== undefined ? {paddingBottom: pb} : {}),
+      ...(pr !== undefined ? {paddingRight: pr} : {}),
+      ...(pl !== undefined ? {paddingLeft: pl} : {}),
+    }),
+    [sx, textAlign, fontWeight, color, mt, mb, mr, ml, pt, pb, pr, pl],
+  );
 
   return (
-    <Text variant={variant} style={[sx, {textAlign, ...others}]}>
+    <Text onPress={onPress} variant={variant} style={style}>
       {children}
     </Text>
   );
 };
 
-Typography.defaultProps = {
-  sx: {},
-  variant: 'bodyMedium',
-  textAlign: 'auto',
-};
-
-export default Typography;
+export default React.memo(Typography);

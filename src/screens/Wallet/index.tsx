@@ -1,10 +1,8 @@
-/* eslint-disable react/no-unstable-nested-components */
 import React, {useState} from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import HomeScreen from './HomeScreen';
 import NewsScreen from './NewsScreen';
 // import LearnScreen from './LearnScreen';
-import EarnScreen from './EarnScreen';
 import {StyleSheet, View} from 'react-native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import ILuminaryIcon from '@ui/core/Icons/iLuminaryIcon';
@@ -41,7 +39,6 @@ const HomeStackScreen = () => {
         },
       }}>
       <HomeStack.Screen name="Home" component={HomeScreen} />
-      <HomeStack.Screen name="Earn" component={EarnScreen} />
     </HomeStack.Navigator>
   );
 };

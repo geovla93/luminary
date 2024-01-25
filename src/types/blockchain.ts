@@ -6,10 +6,13 @@ import {IBlockchainDriver} from './IBlockchainDriver';
 export interface IBlockchainConfig {}
 
 export enum Blockchain {
-  ETHEREUM = 'ETHEREUM',
-  POLYGON = 'POLYGON',
-  ACRIA = 'ACRIA',
-  BNB = 'BNB',
+  ETHEREUM = 'ethereum',
+  POLYGON = 'polygon-pos',
+  ACRIA = 'acria-intellichain',
+  BNB = 'binance-smart-chain',
+  FANTOM = 'fantom',
+  MANTA = 'manta-pacific',
+  ARBITRUM = 'arbitrum-one',
 }
 
 export type IBlockchainAddresses = {
@@ -41,11 +44,13 @@ type BlockchainDriverConstructor = new (
 export interface IBlockchain {
   id: number | string;
   shortName: Blockchain;
+  hasNFTs: boolean;
   name: string;
   address?: string;
   image: any;
   walletDriver: BlockchainDriverConstructor;
   mode: 'evm' | 'rpc';
+  enabled: boolean;
   networks: {
     mainnet: IBlockchainNetwork;
     testnet: IBlockchainNetwork;

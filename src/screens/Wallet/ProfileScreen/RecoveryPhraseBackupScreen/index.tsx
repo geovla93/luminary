@@ -1,104 +1,95 @@
-import {SafeAreaView, StyleSheet, View} from 'react-native';
-import React from 'react';
-import SquareButton from '@ui/core/components/SquareButton';
-import {useNavigation} from '@react-navigation/native';
-import {Button, Typography} from '@ui/core/components';
+import React, {useEffect, useState} from 'react';
 import {useIntl} from 'react-intl';
-import useCloudBackup from '@hooks/useCloudBackup';
-import {useTemporaryWallet} from '@hooks/useTemporaryWallet';
+import {SafeAreaView, StyleSheet, View} from 'react-native';
+import Clipboard from '@react-native-clipboard/clipboard';
+import {useToast} from 'react-native-toast-notifications';
+import {scale, verticalScale} from 'react-native-size-matters';
+import {Button} from '@ui/core/components';
 
-const RecoveryPhraseBackupScreen = () => {
-  const navigation = useNavigation<any>();
+import OnboardingHeader from '@components/OnboardingHeader';
+import SecretPhrase from '@components/SecretPhrase';
+import CopyToClipboard from '@components/CopyToClipboard';
+import {usePinManager} from '@components/PinManagerProvider';
+import useWalletFactory from '@hooks/wallet/useWalletFactory';
+import {useWalletContext} from '@hooks/useWalletContext';
+import HeaderComponent from '@components/HeaderComponent';
+
+interface Props {
+  navigation: {
+    navigate: (screen: string, options: any) => void;
+    goBack: () => void;
+  };
+}
+
+const RecoveryPhraseBackupScreen = ({navigation}: Props) => {
   const {formatMessage} = useIntl();
-  const {getSeedPhrase, mode} = useTemporaryWallet();
-  const {
-    writeFileToCloud,
-    loading,
-    isIcloudAvailable,
-    readFile,
-    stats,
-    fileContents,
-  } = useCloudBackup('/security_backup.txt');
+  const {getWalletSeedPhrase} = useWalletFactory();
+  const {current} = useWalletContext();
 
-  const securityPhrase = getSeedPhrase?.();
-  console.log(mode);
-  const readFileFromCloud = async () => {
-    await readFile();
-    console.log('content', fileContents);
+  const {lockForPin} = usePinManager();
+
+  const [mnemonic, setMnemonic] = useState<string>('');
+  const toast = useToast();
+
+  const onUnlock = async (pin: string) => {
+    const phrase = await getWalletSeedPhrase(pin, current);
+    if (phrase) {
+      setMnemonic(phrase);
+    }
+  };
+
+  useEffect(() => {
+    lockForPin((pin: string) => onUnlock(pin));
+  }, []);
+
+  const handleCopy = () => {
+    Clipboard.setString(mnemonic);
+    toast.hideAll();
+    toast.show(formatMessage({id: 'copied_to_clipboard'}), {
+      type: 'success',
+      placement: 'top',
+    });
   };
 
   return (
     <SafeAreaView style={styles.root}>
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Typography variant="titleMedium" sx={styles.headerText}>
-            {formatMessage({id: 'recovery_phrase_backup'})}
-          </Typography>
-          <SquareButton onPress={() => navigation.goBack()} icon="close" />
-        </View>
-        <View style={styles.content}>
-          {!isIcloudAvailable ? (
-            <View>
-              <View style={{paddingVertical: 20}}>
-                <Typography variant="bodyMedium">
-                  {formatMessage({id: 'backup_stats'})}
-                </Typography>
-                <Typography variant={'bodySmall'}>
-                  {stats?.mtime.toUTCString()}
-                </Typography>
-              </View>
-              <Button
-                variant={'contained'}
-                size={'small'}
-                disabled={loading}
-                onPress={() => {
-                  writeFileToCloud(securityPhrase);
-                }}>
-                Create backup
-              </Button>
-              {/*<Button*/}
-              {/*  size={'small'}*/}
-              {/*  variant={'outlined'}*/}
-              {/*  onPress={readFileFromCloud}>*/}
-              {/*  Read file*/}
-              {/*</Button>*/}
-            </View>
-          ) : (
-            <View
-              style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-              <Typography variant="bodyMedium">
-                {formatMessage({id: 'icloud_not_available'})}
-              </Typography>
-            </View>
-          )}
+      <HeaderComponent
+        title="your_wallet_recovery_phrase"
+        onBack={() => navigation.goBack()}
+      />
+      <View style={styles.content}>
+        <OnboardingHeader subtitle="backup_subtitle" info="backup_notice" />
+        <SecretPhrase phrase={mnemonic.split(' ')} />
+        <CopyToClipboard onPress={handleCopy} />
+
+        <View style={styles.bottom}>
+          <Button textColor="black" sx={{marginTop: 5}}>
+            {formatMessage({
+              id: 'continue',
+            })}
+          </Button>
         </View>
       </View>
     </SafeAreaView>
   );
 };
 
-export default RecoveryPhraseBackupScreen;
-
 const styles = StyleSheet.create({
   root: {
     flex: 1,
   },
-  container: {
-    flex: 1,
-    paddingHorizontal: 20,
-    paddingVertical: 20,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  headerText: {
-    fontSize: 18,
-    fontFamily: 'Roboto-Medium',
-  },
   content: {
-    marginTop: 20,
     flex: 1,
+    paddingHorizontal: scale(20),
+  },
+  bottom: {
+    flex: 1,
+    display: 'none',
+    justifyContent: 'flex-end',
+  },
+  skip: {
+    marginTop: verticalScale(5),
   },
 });
+
+export default RecoveryPhraseBackupScreen;

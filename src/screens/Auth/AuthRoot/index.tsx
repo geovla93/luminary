@@ -12,18 +12,29 @@ import {useIntl} from 'react-intl';
 import OnboardingItem from './components/OnboardingItem';
 import Paginator from './components/Paginator';
 import {SCREENS} from '../../screens';
-import AuthFooter from './components/AuthFooter';
 import {scale, moderateScale} from 'react-native-size-matters';
-import {useTemporaryWallet} from '@hooks/useTemporaryWallet';
+import {useTemporaryWallet} from '@hooks/wallet/useTemporaryWallet';
+import {usePinManager} from '@components/PinManagerProvider';
+import BiometricsDialog from '@components/BiometricsDialog';
+import {useOnboarding} from '@hooks/useOnboarding';
 // import {ScrollView} from 'react-native-gesture-handler';
 
 const AuthRootScreen = ({navigation}: any) => {
+  const {handleSetPin, dismiss} = usePinManager();
+  const {
+    createTempWallet,
+    securedStoreWalletData,
+    setWalletMode,
+    resetTemporaryWalletState,
+  } = useTemporaryWallet();
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [showBiometricsDialog, setShowBiometricsDialog] = useState(false);
+  const {playAudioFile} = useOnboarding();
+  const [pin, setPin] = useState('');
   const slidesRef = useRef(null);
   const {locale} = useAppSelector(state => state.application);
   const scrollX = useRef(new Animated.Value(0)).current;
   const {formatMessage} = useIntl();
-  const {setWalletMode} = useTemporaryWallet();
   const steps = useMemo(() => {
     return [
       {
@@ -47,7 +58,7 @@ const AuthRootScreen = ({navigation}: any) => {
         image: require('../../../assets/onboarding/dapps.png'),
         title: formatMessage({
           id: 'onboarding_title_2',
-          defaultMessage: 'Dapps',
+          defaultMessage: 'dApps',
         }),
       },
     ];
@@ -59,24 +70,30 @@ const AuthRootScreen = ({navigation}: any) => {
 
   const viewConfig = useRef({viewAreaCoveragePercentThreshold: 50}).current;
 
-  const handleCreateWallet = () => {
+  const onComplete = async (withBiometrics: boolean) => {
+    await securedStoreWalletData(pin, withBiometrics);
+  };
+
+  const handleCreateWallet = async () => {
+    playAudioFile('create_wallet');
     setWalletMode('creating');
-    navigation.navigate(SCREENS.CREATE_WALLET_FLOW, {
-      screen: SCREENS.SECURITY_TIPS_CREATE_SCREEN,
-      params: {
-        nextScreen: SCREENS.BACKUP_WALLET_SCREEN,
+    await createTempWallet();
+    handleSetPin(
+      (_pin: string) => {
+        setPin(_pin);
+        setShowBiometricsDialog(true);
       },
-    });
+      () => {
+        resetTemporaryWalletState();
+        dismiss();
+        playAudioFile('create_wallet', true);
+      },
+    );
   };
 
   const handleRecoverWallet = () => {
     setWalletMode('recovering');
-    navigation.navigate(SCREENS.RECOVER_WALLET_ROOT_SCREEN, {
-      screen: SCREENS.SECURITY_TIPS_SCREEN,
-      params: {
-        nextScreen: SCREENS.RECOVER_WALLET_SCREEN,
-      },
-    });
+    navigation.navigate(SCREENS.RECOVER_WALLET_ROOT_SCREEN);
   };
 
   return (
@@ -112,7 +129,10 @@ const AuthRootScreen = ({navigation}: any) => {
         </Typography>
         <Paginator data={steps} scrollX={scrollX} />
         <View style={styles.footerContainer}>
-          <Button variant="contained" onPress={handleCreateWallet}>
+          <Button
+            size="medium"
+            variant="contained"
+            onPress={handleCreateWallet}>
             {formatMessage({
               id: 'create_wallet',
             })}
@@ -120,15 +140,18 @@ const AuthRootScreen = ({navigation}: any) => {
           <Button
             variant="elevated"
             textColor="white"
+            size="medium"
             onPress={handleRecoverWallet}
             sx={{marginTop: 20}}>
             {formatMessage({
               id: 'recover_wallet',
             })}
           </Button>
-          <AuthFooter />
         </View>
       </View>
+      {showBiometricsDialog && (
+        <BiometricsDialog onSet={(enabled: boolean) => onComplete(enabled)} />
+      )}
     </SafeAreaView>
   );
 };

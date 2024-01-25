@@ -1,4 +1,6 @@
 import relativeTime from 'dayjs/plugin/relativeTime';
+import RootChecker from 'jail-monkey';
+import DeviceInfo from 'react-native-device-info';
 import dayjs from 'dayjs';
 
 dayjs.extend(relativeTime);
@@ -68,4 +70,26 @@ export const randomNumbers = (max: number, length: number = 3) => {
 
 export const formatAddress = (address: string) => {
   return `${address.slice(0, 8)}...${address.slice(-8)}`;
+};
+
+export const canRunSecurely = (): true | string => {
+  if (RootChecker.trustFall()) {
+    return 'rooted';
+  } else if (RootChecker.isJailBroken()) {
+    return 'jailbroken';
+  } else if (RootChecker.hookDetected()) {
+    return 'hooked';
+  } else if (DeviceInfo.isEmulatorSync()) {
+    return 'emulator';
+  } else if (RootChecker.AdbEnabled()) {
+    return 'debugged';
+  }
+  return true;
+};
+
+export const checkIpfs = (ipfsLink: string) => {
+  if (ipfsLink.startsWith('ipfs://')) {
+    ipfsLink = `https://ipfs.io/ipfs/${ipfsLink.replace('ipfs://', '')}`;
+  }
+  return ipfsLink;
 };

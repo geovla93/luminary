@@ -2,6 +2,10 @@ import {Blockchain} from './blockchain';
 
 export type WalletRestoreType = 'mnemonic' | 'privateKey';
 
+export interface IWalletAddresses {
+  address: string;
+  derivationPath: string;
+}
 export interface IWalletChain {
   address: string;
   chain: Blockchain;

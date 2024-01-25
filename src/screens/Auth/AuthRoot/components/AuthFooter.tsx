@@ -14,32 +14,34 @@ const AuthFooter = () => {
         {formatMessage({
           id: 'agreement',
         })}
-        <Pressable
-          style={styles.pressable}
-          onPress={() => openLink(links.terms)}>
-          <Typography
-            variant="bodySmall"
-            sx={[styles.agreement, {color: colors.primary}]}>
-            {formatMessage({
-              id: 'terms',
-            })}
-          </Typography>
-        </Pressable>
+      </Typography>
+      <Pressable style={styles.pressable} onPress={() => openLink(links.terms)}>
+        <Typography
+          variant="bodySmall"
+          color={colors.primary}
+          sx={styles.agreement}>
+          {formatMessage({
+            id: 'terms',
+          })}
+        </Typography>
+      </Pressable>
+      <Typography sx={styles.agreement} variant="bodySmall">
         {formatMessage({
           id: 'and',
         })}
-        <Pressable
-          style={styles.pressable}
-          onPress={() => openLink(links.privacy)}>
-          <Typography
-            variant="bodySmall"
-            sx={[styles.agreement, {color: colors.primary}]}>
-            {formatMessage({
-              id: 'privacy',
-            })}
-          </Typography>
-        </Pressable>
       </Typography>
+      <Pressable
+        style={styles.pressable}
+        onPress={() => openLink(links.privacy)}>
+        <Typography
+          variant="bodySmall"
+          color={colors.primary}
+          sx={styles.agreement}>
+          {formatMessage({
+            id: 'privacy',
+          })}
+        </Typography>
+      </Pressable>
     </View>
   );
 };
@@ -49,14 +51,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: 20,
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   agreement: {
     fontSize: 10,
     textAlign: 'center',
+    lineHeight: 16,
   },
-  pressable: {
-    paddingTop: 4,
-  },
+  pressable: {},
 });
 
 export default AuthFooter;

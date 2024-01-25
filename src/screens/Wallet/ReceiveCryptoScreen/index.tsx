@@ -1,7 +1,7 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import {SafeAreaView, StyleSheet, View, Share} from 'react-native';
 import {useIntl} from 'react-intl';
-import {useNavigation} from '@react-navigation/native';
+
 import {Button, Typography} from '@ui/core/components';
 import SquareButton from 'src/ui/core/components/SquareButton';
 import ChainSelector from '@components/ChainSelector';
@@ -11,13 +11,25 @@ import BottomSheet from '@gorhom/bottom-sheet';
 import ChainPicker from '@components/ChainSelector/ChainPicker';
 import {IBlockchain} from '@itypes/blockchain';
 
-const ReceiveCryptoScreen = () => {
-  const navigation = useNavigation<any>();
+const ReceiveCryptoScreen = ({navigation, route}: any) => {
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const token = route?.params?.token;
+
   const [chainPickerOpen, setChainPickerOpen] = useState(false);
   const {formatMessage} = useIntl();
   const {chains} = useWalletContext();
-  const [chain, setChain] = useState(chains[0]);
+  const [chain, setChain] = useState(chains[2]);
+
+  useEffect(() => {
+    if (token) {
+      const _chain = chains.find(
+        (_c: IBlockchain) => _c.shortName === token?.chainId,
+      );
+      if (_chain) {
+        setChain(_chain);
+      }
+    }
+  }, [token]);
 
   const handleChainPickerClose = () => {
     bottomSheetRef.current?.close();

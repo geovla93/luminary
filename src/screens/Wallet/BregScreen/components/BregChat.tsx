@@ -1,106 +1,167 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
 
 import {
-  ImageBackground,
   Keyboard,
   StyleSheet,
-  TextInput,
-  TouchableOpacity,
+  KeyboardAvoidingView,
   View,
+  Platform,
 } from 'react-native';
 import SquareButton from '@ui/core/components/SquareButton';
 // import {Typography} from '@ui/core/components';
 import {colors} from '@ui/core/theme';
-import MicrophoneIcon from '@ui/core/Icons/MicrophoneIcon';
-import {useIntl} from 'react-intl';
-import BregNoMessages from './BregNoMessages';
-import AboveKeyboard from '@components/AboveKeyboard';
-import BregChatMessages from './BregChatMessages';
+import Sound from 'react-native-sound';
+import {apiUrl} from 'src/api/config';
+import useBreg from '@hooks/useBreg';
+import BregChatText from './BregChatText';
 import {IconButton} from 'react-native-paper';
+import {useToast} from 'react-native-toast-notifications';
+import {useIntl} from 'react-intl';
+import {ToastProps} from 'react-native-toast-notifications/lib/typescript/toast';
+// import BregChatVoice from './BregChatVoice';
 
-const BregChat = ({onClose}: {onClose: () => void}) => {
+const toastProps = {
+  duration: 1000,
+  placement: 'top',
+  textStyle: {
+    color: colors.onPrimary,
+    fontWeight: 'bold',
+  },
+  style: {
+    backgroundColor: colors.primary,
+    borderWidth: 1,
+    borderColor: colors.onPrimary,
+  },
+} as ToastProps;
+
+const BregChat = ({
+  onClose,
+  askBreg,
+}: {
+  onClose: () => void;
+  askBreg: (message: string, mode: 'text' | 'audio') => Promise<any>;
+}) => {
+  const flatListRef = useRef<any>(null);
   const {formatMessage} = useIntl();
-  const [mode, setMode] = useState<'text' | 'voice' | null>(null);
+  const {messages, addMessage} = useBreg();
+  const toast = useToast();
+  const [loading, setLoading] = useState<boolean>(false);
+  const [mode, setMode] = useState<'text' | 'audio' | null>('text');
   const [message, setMessage] = useState<string>('');
-  const [messages, setMessages] = useState<any[]>([]);
+  const audioFile = useRef<any>(null);
 
   const onInputFocus = () => {
-    setMode('text');
+    // setMode('text');
+    setTimeout(() => {
+      flatListRef.current?.scrollToEnd({animated: true});
+    }, 200);
   };
   const switchToVoice = () => {
     Keyboard.dismiss();
-    setMode('voice');
+    setMode('audio');
     setMessage('');
   };
 
   useEffect(() => {
-    if (!message && mode) {
-      setMessages([
-        ...messages,
-        {
-          text: 'I am still learning... Smarter me is coming soon!',
-          kind: 'text',
-          type: 'received',
-        },
-      ]);
+    if (messages.length > 0 && flatListRef.current) {
+      setTimeout(() => {
+        flatListRef.current?.scrollToEnd({animated: true});
+      }, 500);
     }
-  }, [message]);
+  }, [messages.length, flatListRef.current]);
 
-  const sendMessage = () => {
-    setMessages([...messages, {text: message, kind: 'text', type: 'sent'}]);
+  const sendMessage = useCallback(() => {
+    if (!message) {
+      return;
+    }
+    setLoading(true);
+    addMessage({text: message, kind: 'text', type: 'sent'});
     setMessage('');
-  };
+    askBreg(message, mode || 'text').then((res: any) => {
+      addMessage({text: res.data.message, kind: 'text', type: 'received'});
+      if (mode === 'text') {
+        setLoading(false);
+      }
+      if (res.data.file) {
+        audioFile.current = new Sound(
+          apiUrl + res.data.file,
+          undefined,
+          error => {
+            if (error) {
+              console.log('failed to load the sound', error);
+              return;
+            }
+            audioFile.current.play((success: boolean) => {
+              if (success) {
+                audioFile.current.release();
+                setLoading(false);
+              } else {
+                console.log('playback failed due to audio decoding errors');
+              }
+            });
+          },
+        );
+      }
+    });
+  }, [mode, message]);
+
+  const handleChangeMode = useCallback(() => {
+    toast.hideAll();
+    if (mode === 'text') {
+      setMode('audio');
+      toast.show(formatMessage({id: 'switched_to_audio'}), toastProps);
+    } else {
+      setMode('text');
+      toast.show(formatMessage({id: 'switched_to_chat'}), toastProps);
+    }
+  }, [mode]);
+
   return (
-    <>
+    <View style={{flex: 1, marginVertical: Platform.OS === 'ios' ? 0 : 10}}>
       <View style={styles.header}>
-        <SquareButton icon="close" onPress={onClose} />
-      </View>
-      <View style={{flex: 1}}>
-        <View
-          style={{
-            flex: 1,
-            paddingHorizontal: 20,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          {messages.length === 0 && <BregNoMessages />}
-          {mode !== null && <BregChatMessages messages={messages} />}
-          <AboveKeyboard keyboardAvoidingViewBehaviour="padding">
-            <View style={styles.inputContainer}>
-              <TextInput
-                onChange={e => setMessage(e.nativeEvent.text)}
-                value={message}
-                onFocus={onInputFocus}
-                placeholder={formatMessage({
-                  id: 'type_your_message',
-                })}
-                style={styles.input}
-              />
-              {mode === 'text' && (
-                <IconButton
-                  icon={message ? 'arrow-up' : 'microphone'}
-                  containerColor={colors.primary}
-                  iconColor="black"
-                  size={30}
-                  onPress={() => (message ? sendMessage() : switchToVoice())}
-                />
-              )}
-            </View>
-          </AboveKeyboard>
-          {mode !== 'text' && (
-            <TouchableOpacity
-              onPress={() => console.log('start chat')}
-              style={{marginTop: 20}}>
-              <ImageBackground
-                source={require('@assets/breg_button.png')}
-                style={styles.startChatButton}>
-                <MicrophoneIcon />
-              </ImageBackground>
-            </TouchableOpacity>
-          )}
+        <IconButton
+          iconColor="black"
+          onPress={handleChangeMode}
+          containerColor={colors.primary}
+          icon={
+            mode === 'text'
+              ? 'account-tie-voice-outline'
+              : 'message-processing-outline'
+          }
+        />
+        <View>
+          <SquareButton icon="close" onPress={onClose} />
         </View>
       </View>
-    </>
+      {/* {mode === 'text' && ( */}
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : undefined}>
+        <BregChatText
+          mode={mode}
+          flatListRef={flatListRef}
+          loading={loading}
+          messages={messages}
+          message={message}
+          setMessage={setMessage}
+          sendMessage={sendMessage}
+          onInputFocus={onInputFocus}
+          switchToVoice={switchToVoice}
+        />
+      </KeyboardAvoidingView>
+      {/* )} */}
+      {/* {mode !== 'text' && (
+        <BregChatVoice
+          mode={mode}
+          loading={loading}
+          messages={messages}
+          sendMessage={sendMessage}
+          onInputFocus={onInputFocus}
+          switchToVoice={switchToVoice}
+        />
+      )} */}
+    </View>
   );
 };
 
@@ -108,18 +169,21 @@ const styles = StyleSheet.create({
   root: {
     flex: 1,
     backgroundColor: colors.background,
-    // opacity: 0.9,
     ...StyleSheet.absoluteFillObject,
   },
+  flex: {
+    flex: 1,
+  },
   header: {
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     flexDirection: 'row',
     width: '100%',
+    borderBottomRightRadius: 20,
+    borderBottomLeftRadius: 20,
     paddingHorizontal: 20,
   },
   input: {
-    height: 50,
-    flexGrow: 1,
     backgroundColor: colors.background,
     borderRadius: 30,
     paddingVertical: 10,
@@ -147,11 +211,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   inputContainer: {
-    width: '100%',
-    marginTop: 20,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
+    paddingHorizontal: 20,
   },
 });
 

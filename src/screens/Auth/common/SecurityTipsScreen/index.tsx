@@ -1,3 +1,7 @@
+/*
+Not used: in delete queue
+*/
+
 import React, {useRef, useState} from 'react';
 import {StyleSheet, Image, View, SafeAreaView, ScrollView} from 'react-native';
 import {useIntl} from 'react-intl';
@@ -9,7 +13,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import OnboardingHeader from '@components/OnboardingHeader';
 import {moderateScale, scale, verticalScale} from 'react-native-size-matters';
 import {IconButton} from 'react-native-paper';
-import {useTemporaryWallet} from '@hooks/useTemporaryWallet';
+import {useTemporaryWallet} from '@hooks/wallet/useTemporaryWallet';
 import SetWalletPassword from '@components/SetPassword';
 
 const SecurityTipsScreen = ({navigation, route}: any) => {

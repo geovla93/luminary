@@ -48,7 +48,9 @@ const SnackBar = ({
         <Image source={image} style={styles.image} />
       </View>
       <View style={styles.textContainer}>
-        <Typography sx={[styles.title, {color: textColor}]}>{title}</Typography>
+        <Typography sx={styles.title} color={textColor}>
+          {title}
+        </Typography>
         {subtitle && <Typography sx={styles.subtitle}>{subtitle}</Typography>}
       </View>
       <View style={styles.iconContainer}>

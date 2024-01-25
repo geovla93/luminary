@@ -1,6 +1,6 @@
 import {Typography} from '@ui/core/components';
-import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import React, {useCallback, useMemo} from 'react';
+import {Pressable, StyleSheet, View} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Feather from 'react-native-vector-icons/Feather';
 import LinearGradient from 'react-native-linear-gradient';
@@ -13,11 +13,43 @@ import {useNavigation} from '@react-navigation/native';
 import {useIntl} from 'react-intl';
 import {SCREENS} from '@screens/screens';
 import {useWalletContext} from '@hooks/useWalletContext';
+import useApplication from '@hooks/useApplication';
+import {usePinManager} from '@components/PinManagerProvider';
 
 const ProfileCard = () => {
   const navigation = useNavigation<any>();
   const {wallet} = useWalletContext();
-  const {formatMessage, formatNumber} = useIntl();
+  const {lockTheApp} = usePinManager();
+  const {currency, hideBalances, priceDisplay, changeBalanceDisplay} =
+    useApplication();
+  const {formatMessage} = useIntl();
+
+  const handleToggleBalances = useCallback(() => {
+    if (hideBalances) {
+      lockTheApp(() => changeBalanceDisplay(false));
+    } else {
+      changeBalanceDisplay(true);
+    }
+  }, [hideBalances]);
+
+  const change = useMemo(() => {
+    const values = {
+      color: 'black',
+      icon: 'minus-circle',
+      value: '0.00',
+    };
+    if (wallet.balance?.change > 0) {
+      values.color = '#00b500';
+      values.icon = 'arrow-up-circle';
+      values.value = wallet.balance?.change?.toFixed(2);
+    } else if (wallet.balance?.change < 0) {
+      values.color = '#DC143C';
+      values.icon = 'arrow-down-circle';
+      values.value = wallet.balance?.change?.toFixed(2);
+    }
+    return values;
+  }, [wallet?.balance?.change]);
+
   return (
     <>
       <LinearGradient
@@ -30,26 +62,42 @@ const ProfileCard = () => {
         end={{x: 1, y: 1}}
         style={styles.container}>
         <View style={styles.balanceTitle}>
-          <Typography
-            sx={{
-              fontWeight: '600',
-              color: 'black',
-              fontSize: 18,
-              fontFamily: 'Roboto-Medium',
-            }}
-            variant="bodyLarge">
-            {formatMessage({id: 'current_balance'})}
-          </Typography>
-          <Typography
-            variant="bodyLarge"
-            sx={{
-              color: 'black',
-              fontSize: 18,
-              fontWeight: '500',
-              fontFamily: 'Roboto-Medium',
-            }}>
-            USD <Icon name="chevron-down" size={20} />{' '}
-          </Typography>
+          <View style={styles.currentBalance}>
+            <Typography
+              sx={{
+                fontWeight: '600',
+                color: 'black',
+                fontSize: 18,
+                fontFamily: 'Roboto-Medium',
+              }}
+              variant="bodyLarge">
+              {formatMessage({id: 'current_balance'})}
+            </Typography>
+            <Pressable
+              onPress={() => handleToggleBalances()}
+              style={styles.privacy}>
+              <Icon
+                name={hideBalances ? 'eye' : 'eye-off'}
+                size={20}
+                color="black"
+              />
+            </Pressable>
+          </View>
+          <Pressable
+            onPress={() =>
+              navigation.navigate(SCREENS.APP_SELECT_CURRENCY_SCREEN)
+            }>
+            <Typography
+              variant="bodyLarge"
+              sx={{
+                color: 'black',
+                fontSize: 18,
+                fontWeight: '500',
+                fontFamily: 'Roboto-Medium',
+              }}>
+              {currency?.toUpperCase()} <Icon name="chevron-down" size={20} />{' '}
+            </Typography>
+          </Pressable>
         </View>
         <View>
           <Typography
@@ -61,24 +109,24 @@ const ProfileCard = () => {
               fontFamily: 'Roboto-Medium',
             }}
             variant="displaySmall">
-            {formatNumber(wallet?.balance.balance, {
-              style: 'currency',
-              currency: 'USD',
-            })}
+            {priceDisplay(wallet?.balance?.balance)}
           </Typography>
         </View>
         <View style={styles.profitContainer}>
           <View>
-            <Typography
-              sx={{
-                fontWeight: '500',
-                color: 'black',
-                fontSize: 20,
-                fontFamily: 'Roboto-Medium',
-              }}
-              variant="titleLarge">
-              {formatMessage({id: 'profit'})}
-            </Typography>
+            <View style={styles.privacyButtonContainer}>
+              <Typography
+                sx={{
+                  fontWeight: '500',
+                  color: 'black',
+                  fontSize: 20,
+                  fontFamily: 'Roboto-Medium',
+                }}
+                variant="titleLarge">
+                {formatMessage({id: 'profit'})}
+              </Typography>
+            </View>
+
             <Typography
               sx={{
                 fontWeight: '400',
@@ -87,13 +135,14 @@ const ProfileCard = () => {
                 fontFamily: 'Roboto-Medium',
               }}
               variant="bodyLarge">
-              $0.00
+              {priceDisplay(wallet?.balance?.profit)}
             </Typography>
           </View>
           <View style={styles.profitPercentage}>
             <Feather
-              name="arrow-up-circle"
+              name={change.icon}
               size={20}
+              color={change.color}
               style={{marginRight: 5}}
             />
             <Typography
@@ -105,7 +154,7 @@ const ProfileCard = () => {
                 lineHeight: 22,
               }}
               variant="bodyLarge">
-              +0.00%
+              {change.value}%
             </Typography>
           </View>
         </View>
@@ -122,12 +171,12 @@ const ProfileCard = () => {
           <ArrowDown />
         </ProfileButton>
         <ProfileButton
-          action={() => console.log('clicked send')}
+          action={() => navigation.navigate(SCREENS.APP_EARN_SCREEN)}
           text={formatMessage({id: 'earn'})}>
           <UsdCircle />
         </ProfileButton>
         <ProfileButton
-          action={() => console.log('clicked send')}
+          action={() => navigation.navigate(SCREENS.APP_INVEST_SCREEN)}
           text={formatMessage({id: 'invest'})}>
           <Chart />
         </ProfileButton>
@@ -161,6 +210,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     display: 'flex',
+  },
+  currentBalance: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
   actionsContainer: {
     flexDirection: 'row',
@@ -196,6 +250,13 @@ const styles = StyleSheet.create({
     padding: 10,
     borderRadius: 20,
     marginBottom: 5,
+  },
+  privacy: {
+    marginLeft: 10,
+  },
+  privacyButtonContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
 

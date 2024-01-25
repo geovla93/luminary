@@ -1,5 +1,6 @@
 import axios from 'axios';
 
+export const apiUrl = 'https://api.iluminary.app';
 export const apiBaseUrl = __DEV__
   ? 'https://api.iluminary.app/api/v1'
   : 'https://api.iluminary.app/api/v1';

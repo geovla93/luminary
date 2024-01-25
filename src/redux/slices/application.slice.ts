@@ -1,20 +1,29 @@
 import {createSlice, PayloadAction} from '@reduxjs/toolkit';
-import {ELOCALE} from '../../types/locale';
+import {detectLanguage, ELOCALE} from '../../types/locale';
+import {CURRENCIES} from 'src/blockchain/currencies';
 
 export interface IApplicationState {
   locale: ELOCALE;
+  currency: CURRENCIES;
+  hideBalances: boolean;
+  lockedUntil: number | null;
   lockingMethod: 'pin' | 'biometrics' | 'none';
-  lastLocked: number;
+  bgTimestamp: number;
   locked: boolean;
   currentScreen: string | null;
+  helpCenterLogin: boolean;
 }
 
 const initialState: IApplicationState = {
-  locale: ELOCALE.ENGLISH,
+  locale: detectLanguage(),
+  currency: CURRENCIES.USD,
+  hideBalances: false,
+  lockedUntil: null,
   lockingMethod: 'none',
-  lastLocked: 0,
+  bgTimestamp: 0,
   locked: false,
   currentScreen: null,
+  helpCenterLogin: false,
 };
 
 const applicationSlice = createSlice({
@@ -30,24 +39,34 @@ const applicationSlice = createSlice({
     ) {
       state.lockingMethod = action.payload;
     },
-    setLocked(state, action: PayloadAction<boolean>) {
+    setAppCloseTimestamp(state, action: PayloadAction<boolean>) {
       state.locked = action.payload;
-      state.lastLocked = Date.now();
+      state.bgTimestamp = Date.now();
     },
     setCurrentScreen: (state, action: PayloadAction<string | null>) => {
       state.currentScreen = action.payload;
     },
-    setLastLocked: (
-      state: IApplicationState,
-      action: PayloadAction<number>,
-    ) => {
-      state.lastLocked = action.payload;
+    setHideBalances: (state, action: PayloadAction<boolean>) => {
+      state.hideBalances = action.payload;
     },
-    reset: state => {
+    switchCurrency: (state, action: PayloadAction<CURRENCIES>) => {
+      state.currency = action.payload;
+    },
+    setLockedUntil: (state, action: PayloadAction<number | null>) => {
+      state.lockedUntil = action.payload;
+    },
+    setHelpCenterLogin: (state, action: PayloadAction<boolean>) => {
+      state.helpCenterLogin = action.payload;
+    },
+    resetApplication: state => {
       state.currentScreen = null;
       // state.locale = ELOCALE.ENGLISH;
       state.lockingMethod = 'none';
       state.locked = false;
+      state.bgTimestamp = 0;
+      state.hideBalances = false;
+      state.lockedUntil = null;
+      state.helpCenterLogin = false;
     },
   },
 });
@@ -55,9 +74,13 @@ const applicationSlice = createSlice({
 export const {
   setLocale,
   setCurrentScreen,
-  setLocked,
+  switchCurrency,
+  setAppCloseTimestamp,
   setUnlockingMethod,
-  setLastLocked,
+  setHideBalances,
+  setLockedUntil,
+  setHelpCenterLogin,
+  resetApplication,
 } = applicationSlice.actions;
 
 export default applicationSlice.reducer;

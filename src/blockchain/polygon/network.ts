@@ -3,7 +3,7 @@ import {IBlockchainNetwork} from '@itypes/networks';
 export const mainnet: IBlockchainNetwork = {
   name: 'Polygon',
   chainId: 137,
-  url: 'https://polygon.llamarpc.com',
+  url: 'https://polygon-rpc.com',
   mainnet: true,
   explorer: {
     name: 'Polygonscan',

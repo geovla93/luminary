@@ -3,13 +3,15 @@ import {Typography} from '@ui/core/components';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {Pressable, StyleSheet, TouchableOpacity, View} from 'react-native';
 import {Avatar, MD3Theme, useTheme} from 'react-native-paper';
-import SendMessage from '@ui/core/Icons/SendMessage';
+// import SendMessage from '@ui/core/Icons/SendMessage';
+import Tooltip from 'react-native-walkthrough-tooltip';
 import BellIcon from '@ui/core/Icons/BellIcon';
 import ScanQrIcon from '@ui/core/Icons/ScanQrIcon';
 import {SCREENS} from '@screens/screens';
 import {useNavigation} from '@react-navigation/native';
 // import {useIntl} from 'react-intl';
 import {useWalletContext} from '@hooks/useWalletContext';
+import {useWalletAsUser} from '@hooks/useWalletAsUser';
 
 const Header = () => {
   const theme = useTheme();
@@ -17,7 +19,7 @@ const Header = () => {
   const styles = useStyles(theme);
   const navigation = useNavigation<any>();
   const {wallet} = useWalletContext();
-  const [username] = React.useState('iluminary');
+  const {user} = useWalletAsUser();
 
   return (
     <View style={styles.container}>
@@ -30,13 +32,20 @@ const Header = () => {
           source={require('./logo.png')}
         />
       </TouchableOpacity>
+
       <View style={styles.addressContainer}>
         <Pressable
           onPress={() => navigation.navigate(SCREENS.APP_SELECT_WALLET_SCREEN)}
           style={styles.networkContainer}>
-          <Typography sx={styles.title} variant="titleMedium">
-            @{username}
-          </Typography>
+          {user.alias ? (
+            <Typography sx={styles.title} variant="titleMedium">
+              @{user.alias}
+            </Typography>
+          ) : (
+            <Typography sx={styles.title} variant="titleMedium">
+              {wallet?.address?.slice(0, 4)}...{wallet?.address?.slice(-4)}
+            </Typography>
+          )}
           <Icon
             name="keyboard-arrow-down"
             size={20}
@@ -59,13 +68,13 @@ const Header = () => {
           onPress={() => navigation.navigate(SCREENS.APP_NOTIFICATIONS_SCREEN)}>
           <BellIcon size={18} />
         </TouchableOpacity>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.actionButton}
           onPress={() =>
             navigation.navigate(SCREENS.APP_MESSENGER_ROOT_SCREEN)
           }>
           <SendMessage size={18} />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
     </View>
   );

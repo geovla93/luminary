@@ -1,20 +1,23 @@
 import React from 'react';
 import {IconButton, MD3Theme, useTheme} from 'react-native-paper';
 import {StyleSheet, TouchableOpacity} from 'react-native';
+import {colors} from '@ui/core/theme';
 
 const SquareButton = ({
   onPress,
   icon = 'arrow-left',
+  iconColor = colors.primary,
 }: {
   onPress: () => void;
   icon?: string;
+  iconColor?: string;
 }) => {
   const theme = useTheme();
   const styles = useStyles(theme);
   return (
     <TouchableOpacity onPress={onPress} style={styles.root}>
       <IconButton
-        iconColor={theme.colors.primary}
+        iconColor={iconColor}
         icon={icon}
         size={22}
         style={{margin: 0, padding: 0}}

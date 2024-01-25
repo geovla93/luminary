@@ -1,16 +1,26 @@
-import React, {useMemo, useState} from 'react';
+import React, {useCallback, useMemo, useState} from 'react';
 import {Button} from '@ui/core/components';
 import OnboardingHeader from '../../../components/OnboardingHeader';
-import {SafeAreaView, StyleSheet, View} from 'react-native';
+import {FlatList, SafeAreaView, StyleSheet, View} from 'react-native';
 import {useIntl} from 'react-intl';
 import {useAppSelector} from '../../../redux/hook';
 import ImportOption from './components/ImportOption';
 import {SCREENS} from '@screens/screens';
+import OnboardingSteps from '@components/OnboardingSteps';
+import {useOnboarding} from '@hooks/useOnboarding';
+import {useFocusEffect} from '@react-navigation/native';
 
 const RecoverWalletScreen = ({navigation}: any) => {
   const {formatMessage} = useIntl();
   const locale = useAppSelector(state => state.application.locale);
   const [selected, setSelected] = useState('secret_phrase');
+  const {playAudioFile} = useOnboarding();
+
+  useFocusEffect(
+    useCallback(() => {
+      playAudioFile('recover');
+    }, []),
+  );
 
   const handleContinue = () => {
     if (selected === 'secret_phrase') {
@@ -42,28 +52,37 @@ const RecoverWalletScreen = ({navigation}: any) => {
         disabled: true,
       },
     ];
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [locale]);
+
   return (
     <SafeAreaView style={styles.root}>
       <View style={styles.content}>
-        <OnboardingHeader
+        <OnboardingSteps
+          showBack
           onBack={() => navigation.goBack()}
+          total={3}
+          fill={1}
+        />
+        <OnboardingHeader
           title={'import_wallet'}
           subtitle="import_wallet_subtitle"
         />
         <View style={styles.importOptions}>
-          {options.map((option, index) => (
-            <ImportOption
-              option={option}
-              disabled={option.disabled}
-              selected={option.id === selected}
-              key={`${index}-option`}
-              onPress={() => setSelected(option.id)}
-            />
-          ))}
+          <FlatList
+            data={options}
+            renderItem={({item}) => (
+              <ImportOption
+                option={item}
+                disabled={item.disabled}
+                selected={item.id === selected}
+                onPress={() => setSelected(item.id)}
+              />
+            )}
+            keyExtractor={item => item.id}
+            showsVerticalScrollIndicator={false}
+          />
         </View>
-        <View>
+        <View style={styles.actionContainer}>
           <Button
             variant="contained"
             onPress={handleContinue}
@@ -89,6 +108,9 @@ const styles = StyleSheet.create({
   importOptions: {
     flex: 1,
     marginTop: 20,
+  },
+  actionContainer: {
+    marginBottom: 20,
   },
 });
 

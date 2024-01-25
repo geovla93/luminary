@@ -16,9 +16,11 @@ export interface ITokenData {
   decimals: number;
   balance: string;
   chain: Blockchain;
+  chainId: string;
   image?: string;
   price?: any;
   chainImage?: any;
+  visible?: boolean;
 }
 
 export interface ICoinData {
@@ -33,7 +35,9 @@ export interface ICoinData {
   chain: Blockchain;
   image?: string;
   price?: any;
+  chainId: string;
   chainImage?: any;
+  visible?: boolean;
 }
 
 export type SortTokenBy = 'price' | 'name' | 'value';

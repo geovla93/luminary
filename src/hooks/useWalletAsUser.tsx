@@ -1,4 +1,10 @@
-import React, {useContext, createContext, useEffect, useMemo} from 'react';
+import React, {
+  useContext,
+  createContext,
+  useEffect,
+  useMemo,
+  useCallback,
+} from 'react';
 import {Platform} from 'react-native';
 import DeviceInfo from 'react-native-device-info';
 import {useAppDispatch, useAppSelector} from '@redux/hook';
@@ -6,9 +12,13 @@ import {agreementMessage} from '@utils/config';
 import {authenticateWallet} from '../api/wallet';
 import useTokens from './useTokens';
 import {setToken, setUserData} from '@redux/slices/user.slice';
+import useAxios from 'src/api/useAxios';
 
 interface IWalletAsUserContext {
   shouldAuthenticate: boolean;
+  user: any;
+  setAlias: (alias: string) => any;
+  dispatchUserInfo: (data: any) => void;
 }
 
 type WalletAsUserProviderProps = {
@@ -21,16 +31,21 @@ const WalletAsUserContext = createContext<IWalletAsUserContext>(
 
 const WalletAsUserProvider = ({children}: WalletAsUserProviderProps) => {
   const dispatch = useAppDispatch();
+  const axios = useAxios();
   const user = useAppSelector(state => state.user);
   const walletData = useAppSelector(state => state.wallet);
   const {setInitialTokens, refreshPrices} = useTokens();
-
   const shouldAuthenticate = useMemo(() => {
     if (!user.token && walletData.mainWalletAddress && walletData.signature) {
       return true;
     }
     return false;
   }, [user.token, walletData.mainWalletAddress, walletData.signature]);
+
+  const dispatchUserInfo = (data: any) => {
+    dispatch(setUserData(data));
+  };
+
   const authenticate = async (address: string, chains: string[]) => {
     try {
       const authData = {
@@ -44,6 +59,7 @@ const WalletAsUserProvider = ({children}: WalletAsUserProviderProps) => {
         version: DeviceInfo.getVersion(),
       };
       const {data} = await authenticateWallet(authData);
+      console.log('should Authenticate', data);
 
       const {tokens, tokenIds, wallet, accessToken} = data;
       setInitialTokens(tokens, tokenIds);
@@ -58,11 +74,10 @@ const WalletAsUserProvider = ({children}: WalletAsUserProviderProps) => {
     if (shouldAuthenticate) {
       // Authentication is checking if the signature address is matching the main wallet address and is allowing the connection to breg
       // also is retrieving the default tokens for the wallet
-
-      // const _chains: string[] = [];
       const _chains = Object.keys(
         walletData.walletPairs[walletData.current].chains,
       );
+
       authenticate(walletData.mainWalletAddress, _chains);
     } else {
       console.log('should not Authenticate');
@@ -74,8 +89,21 @@ const WalletAsUserProvider = ({children}: WalletAsUserProviderProps) => {
     walletData.signature,
   ]);
 
+  const syncConfigs = useCallback(async () => {
+    if (user.token) {
+      axios.get('/wallet').then(({data}) => {
+        dispatchUserInfo(data.user);
+      });
+    }
+  }, [user.token]);
+
+  const setAlias = (alias: string) => {
+    return axios.post('/wallet/alias', {alias});
+  };
+
   useEffect(() => {
     if (user.token) {
+      syncConfigs();
       refreshPrices();
       const interval = setInterval(() => {
         refreshPrices();
@@ -86,7 +114,8 @@ const WalletAsUserProvider = ({children}: WalletAsUserProviderProps) => {
   }, [user.token, walletData.signature]);
 
   return (
-    <WalletAsUserContext.Provider value={{shouldAuthenticate}}>
+    <WalletAsUserContext.Provider
+      value={{user: user, shouldAuthenticate, setAlias, dispatchUserInfo}}>
       {children}
     </WalletAsUserContext.Provider>
   );

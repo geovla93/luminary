@@ -1,9 +1,10 @@
-import React from 'react';
-import {StyleSheet, View} from 'react-native';
+import React, {useState, useEffect} from 'react';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {Typography} from '@ui/core/components';
-
+import Clipboard from '@react-native-clipboard/clipboard';
 import QRCode from 'react-native-qrcode-svg';
 import {useIntl} from 'react-intl';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
 type IProps = {
   address: string;
@@ -11,6 +12,21 @@ type IProps = {
 
 const AddressQR = ({address}: IProps) => {
   const {formatMessage} = useIntl();
+
+  const [copied, setCopied] = useState<boolean>(false);
+
+  const handleCopy = () => {
+    Clipboard.setString(address);
+    setCopied(true);
+  };
+
+  useEffect(() => {
+    if (copied) {
+      setTimeout(() => {
+        setCopied(false);
+      }, 1000);
+    }
+  }, [copied]);
   return (
     <View style={styles.root}>
       <Typography sx={styles.text} variant="bodyMedium" textAlign="center">
@@ -29,9 +45,17 @@ const AddressQR = ({address}: IProps) => {
           size={200}
         />
       </View>
-      <Typography sx={styles.address} variant="bodyMedium" textAlign="center">
-        {address}
-      </Typography>
+      <TouchableOpacity onPress={() => handleCopy()} style={{marginTop: 20}}>
+        <Typography sx={styles.address} variant="bodyMedium" textAlign="center">
+          {copied ? (
+            formatMessage({id: 'copied'})
+          ) : (
+            <>
+              {address} <Icon name="content-copy" size={15} color="#fff" />
+            </>
+          )}
+        </Typography>
+      </TouchableOpacity>
     </View>
   );
 };

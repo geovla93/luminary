@@ -1,15 +1,9 @@
 import {StyleSheet} from 'react-native';
 import {PinCodeT} from './types';
+import {colors} from '@ui/core/theme';
 
 const EnterSet: PinCodeT.EnterSetStyles = {
   header: {justifyContent: 'flex-start', alignItems: 'center', minHeight: 100},
-  title: {
-    color: 'white',
-    textAlign: 'center',
-    fontWeight: 'bold',
-    fontSize: 20,
-  },
-  subTitle: {textAlign: 'center', marginTop: 20, color: 'white'},
   pinContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
@@ -41,23 +35,21 @@ const EnterSet: PinCodeT.EnterSetStyles = {
     backgroundColor: 'white',
   },
   buttonText: {fontSize: 20},
-  errorText: {marginTop: 10, color: 'orange'},
   footer: {justifyContent: 'center', alignItems: 'center'},
   footerText: {marginTop: 50, padding: 5, color: 'white'},
 };
 
 export const DEFAULT = {
   Options: {
-    pinLength: 4,
+    pinLength: 6,
     allowReset: true,
     disableLock: false,
     lockDuration: 60000,
-    maxAttempt: 10,
+    maxAttempt: 3,
     retryLockDuration: 1000,
   } as PinCodeT.Options,
   TextOptions: {
     enter: {
-      title: 'Enter PIN',
       subTitle: 'Enter {{pinLength}}-digit PIN to access.',
       error: 'Wrong PIN! Try again.',
       backSpace: 'Delete',
@@ -67,17 +59,18 @@ export const DEFAULT = {
       title: 'Set up a new PIN',
       subTitle: 'Enter {{pinLength}} digits.',
       repeat: 'Enter new PIN again.',
-      error: `PIN don't match. Start the process again.`,
+      error: "PIN don't match. Start the process again.",
       cancel: 'Cancel',
     },
     locked: {
       title: 'Locked',
-      subTitle: `Your have entered wrong PIN {{maxAttempt}} times.\nThe app is temporarily locked in {{lockDuration}}.`,
-      lockedText: 'Locked',
+      subTitle:
+        'Your have entered wrong PIN {{maxAttempt}} times.\nThe app is temporarily locked in {{lockDuration}}.',
+      lockedText: 'Time remaining until unlock:',
     },
     reset: {
       title: 'Forgot PIN?',
-      subTitle: `Remove the PIN may wipe out the app data and settings.`,
+      subTitle: 'Remove the PIN may wipe out the app data and settings.',
       resetButton: 'Remove',
       confirm: 'Are you sure you want remove the PIN?',
       confirmButton: 'Confirm',
@@ -92,11 +85,10 @@ export const DEFAULT = {
       justifyContent: 'center',
       alignItems: 'center',
       paddingHorizontal: 20,
-      paddingTop: 40,
     },
     enter: {
       ...EnterSet,
-      buttonTextDisabled: {color: 'gray'},
+      buttonTextDisabled: {color: '#ccc'},
     },
     set: EnterSet,
     locked: {
@@ -115,18 +107,18 @@ export const DEFAULT = {
       },
       subTitle: {textAlign: 'center', marginTop: 20, color: 'white'},
       content: {justifyContent: 'center', alignItems: 'center', padding: 10},
-      lock: {},
+      lock: {
+        color: 'white',
+        fontWeight: 'bold',
+      },
       countdown: {
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 10,
-        borderWidth: 1,
         paddingHorizontal: 30,
         paddingVertical: 10,
-        borderColor: 'white',
         marginTop: 20,
       },
-      countdownText: {fontSize: 20, color: 'white'},
+      countdownText: {fontSize: 40, color: colors.primary},
       footer: {alignItems: 'center'},
     },
     reset: {

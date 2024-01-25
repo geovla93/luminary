@@ -3,10 +3,11 @@ import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {SCREENS} from '../../../screens/screens';
 import RecoverWalletScreen from './ChooseRecovery';
-import SecurityTipsScreen from '../common/SecurityTipsScreen';
+
 import InsertPassPhraseScreen from './InsertPassPhrase';
 import SecureWalletScreen from '../common/SecureWallet';
 import SuccessScreen from '../common/SuccessScreen';
+import SelectHDWalletScreen from './SelectHDWallet';
 
 const RecoverWalletStack = createNativeStackNavigator();
 
@@ -17,16 +18,16 @@ const RecoverWalletFlow = () => {
         headerShown: false,
       }}>
       <RecoverWalletStack.Screen
-        name={SCREENS.SECURITY_TIPS_SCREEN}
-        component={SecurityTipsScreen}
-      />
-      <RecoverWalletStack.Screen
         name={SCREENS.RECOVER_WALLET_SCREEN}
         component={RecoverWalletScreen}
       />
       <RecoverWalletStack.Screen
         name={SCREENS.INSERT_PASSPHRASE_SCREEN}
         component={InsertPassPhraseScreen}
+      />
+      <RecoverWalletStack.Screen
+        name={SCREENS.WALLET_DERIVATION_PATH_SCREEN}
+        component={SelectHDWalletScreen}
       />
       <RecoverWalletStack.Screen
         name={SCREENS.SECURE_RECOVERED_SCREEN}

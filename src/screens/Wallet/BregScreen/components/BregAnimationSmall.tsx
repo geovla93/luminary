@@ -1,4 +1,4 @@
-import ArrowAngleRight from '@ui/core/Icons/HelpIcon';
+import ArrowAngleRight from '@ui/core/Icons/ArrowAngleRight';
 import React from 'react';
 import {View, StyleSheet, ImageBackground} from 'react-native';
 

@@ -1,11 +1,13 @@
 import React, {useState} from 'react';
 import {View, StyleSheet} from 'react-native';
+
 import {colors} from '@ui/core/theme';
 import {Button, Typography} from '@ui/core/components';
 import {useIntl} from 'react-intl';
 
 const Preview = ({onPress}: any) => {
   const {formatMessage} = useIntl();
+
   return (
     <View style={styles.hidden}>
       <Typography
@@ -22,6 +24,7 @@ const Preview = ({onPress}: any) => {
         icon="eye-outline"
         onPress={onPress}
         variant="contained-tonal"
+        size="medium"
         textColor={colors.primary}
         sx={{marginTop: 20, backgroundColor: colors.surface}}>
         {formatMessage({id: 'view'})}

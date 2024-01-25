@@ -1,8 +1,10 @@
-import {IDapp} from '@itypes/dapps';
-import {Button, Typography} from '@ui/core/components';
 import React from 'react';
-import {useIntl} from 'react-intl';
-import {View, StyleSheet, Image} from 'react-native';
+import {IDapp} from '@itypes/dapps';
+import {Typography} from '@ui/core/components';
+import {colors} from '@ui/core/theme';
+
+import {View, StyleSheet, Image, TouchableOpacity} from 'react-native';
+import {IconButton} from 'react-native-paper';
 
 const DappListItem = ({
   item,
@@ -11,9 +13,8 @@ const DappListItem = ({
   item: IDapp;
   openDapp: (dapp: IDapp) => void;
 }) => {
-  const {formatMessage} = useIntl();
   return (
-    <View style={styles.root}>
+    <TouchableOpacity onPress={() => openDapp(item)} style={styles.root}>
       <View style={styles.imageContainer}>
         <Image style={styles.image} source={{uri: item.image}} />
       </View>
@@ -21,37 +22,37 @@ const DappListItem = ({
         <View style={styles.item}>
           <Typography
             sx={{marginBottom: 2, color: 'white'}}
-            variant="bodyMedium"
+            variant="bodySmall"
             fontWeight="bold">
             {item.name}
           </Typography>
           <Typography sx={{fontSize: 12}} variant="bodySmall">
             {item.description}
           </Typography>
-          <Typography variant="bodySmall">{item.rating} ☆</Typography>
         </View>
         <View style={styles.item}>
-          <Button
-            size="small"
-            variant="contained"
-            onPress={() => openDapp(item)}>
-            {formatMessage({id: 'open_dapp'})}
-          </Button>
+          <IconButton
+            containerColor={colors.primary}
+            iconColor={colors.onPrimary}
+            onPress={() => openDapp(item)}
+            size={20}
+            icon={'chevron-right'}
+          />
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
 const styles = StyleSheet.create({
   root: {
     flexDirection: 'row',
-    marginVertical: 10,
+    marginVertical: 3,
   },
   imageContainer: {
     borderRadius: 12,
-    height: 64,
-    width: 64,
+    height: 40,
+    width: 40,
     overflow: 'hidden',
   },
   image: {

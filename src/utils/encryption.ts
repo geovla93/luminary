@@ -1,9 +1,5 @@
 import Crypto from 'react-native-quick-crypto';
-
-// 30_000 iterations takes about 1 second on a modern device so it's a good balance between security and performance
-// 10_000 iterations takes about 0.3 seconds on a modern device
-// IMPORTANT: DO NOT CHANGE THIS VALUE WITHOUT APPROVAL FROM THE SECURITY TEAM
-const iterationsCount = 30_000;
+import {ITERATIONS, IV_LENGTH, RANDOM_KEY_SALT} from 'src/configs/security';
 
 const getKeyFromPassword = (
   password: string,
@@ -20,11 +16,10 @@ export function encryptData(
   password: string,
 ): string | undefined {
   try {
-    // Recommended to use at least 16 bytes
     const salt = Crypto.randomBytes(32);
-    const keyLength = 32; // For AES-256, we need a 32-byte key
-    const iterations = iterationsCount; // The number of iterations, higher is more secure but slower
-    const digest = 'sha256'; // The digest algorithm for PBKDF2
+    const keyLength = IV_LENGTH; // For AES-256, we need a 32-byte key
+    const iterations = ITERATIONS; // The number of iterations, higher is more secure but slower
+    const digest = 'sha256';
     const key = getKeyFromPassword(
       password,
       salt,
@@ -45,6 +40,7 @@ export function encryptData(
       salt: salt.toString('hex'), //!!! do not remove hex encoding even if the typescript compiler complains
       encryptedData: encrypted,
     };
+
     return JSON.stringify(res);
   } catch (error) {
     console.error('Encryption error:', error);
@@ -61,9 +57,9 @@ export function decryptData(
     if (_encryptData === null) {
       return null;
     }
-    const keyLength = 32; // for AES-256
-    const iterations = iterationsCount; // recommended for PBKDF2
-    const digest = 'sha256'; // recommended hash function for PBKDF2
+    const keyLength = IV_LENGTH;
+    const iterations = ITERATIONS;
+    const digest = 'sha256';
 
     const iv = Buffer.from(_encryptData.iv, 'hex');
     const salt = Buffer.from(_encryptData.salt, 'hex');
@@ -92,8 +88,8 @@ export function decryptData(
 
 export const hashPassword = (password: string): string => {
   const salt = Crypto.randomBytes(16).toString('hex');
-  const keyLength = 64;
-  const iterations = iterationsCount;
+  const keyLength = IV_LENGTH;
+  const iterations = ITERATIONS;
   const hashedPassword = Crypto.pbkdf2Sync(
     password,
     salt,
@@ -114,8 +110,8 @@ export const verifyPassword = (
 ): boolean => {
   const _hashedPassword = JSON.parse(hashedPassword);
   const salt = _hashedPassword.salt;
-  const keyLength = 64;
-  const iterations = iterationsCount;
+  const keyLength = IV_LENGTH;
+  const iterations = ITERATIONS;
   const hash = _hashedPassword.hash;
 
   const newHash = Crypto.pbkdf2Sync(
@@ -127,4 +123,16 @@ export const verifyPassword = (
   ).toString('hex');
 
   return hash === newHash;
+};
+
+export const generateRandomKey = (): string => {
+  const randomKey = Crypto.randomBytes(IV_LENGTH).toString('hex');
+  const encryptionKey = Crypto.pbkdf2Sync(
+    randomKey,
+    RANDOM_KEY_SALT,
+    ITERATIONS,
+    IV_LENGTH,
+    'sha512',
+  ).toString('hex');
+  return encryptionKey;
 };

@@ -12,7 +12,7 @@ type IButton = PropsWithChildren<{
   buttonColor?: string;
   disabled?: boolean;
   onPress?: () => void;
-  size?: 'small' | 'medium' | 'large';
+  size?: 'small' | 'medium' | 'large' | 'verySmall';
   onLongPress?: () => void;
   accessibilityLabel?: string;
   accessibilityHint?: string;
@@ -40,12 +40,18 @@ const Button = ({
   labelStyle,
   testID,
 }: IButton) => {
-  let btnStyle = styles.root;
+  let btnStyle = styles.medium;
   if (size === 'small') {
     btnStyle = styles.small;
   }
   if (size === 'medium') {
     btnStyle = styles.medium;
+  }
+  if (size === 'large') {
+    btnStyle = styles.large;
+  }
+  if (size === 'verySmall') {
+    btnStyle = styles.verySmall;
   }
 
   return (
@@ -71,6 +77,7 @@ const Button = ({
 Button.defaultProps = {
   sx: {},
   variant: 'contained',
+  textColor: 'black',
   disabled: false,
   onPress: () => {},
   onLongPress: () => {},
@@ -83,14 +90,26 @@ Button.defaultProps = {
 };
 
 const styles = StyleSheet.create({
-  root: {
+  large: {
     paddingVertical: verticalScale(8),
+    justifyContent: 'center',
+    fontWeight: 'bold',
   },
   medium: {
     paddingVertical: verticalScale(4),
+    fontWeight: 'bold',
   },
   small: {
     paddingVertical: verticalScale(0),
+    justifyContent: 'center',
+    fontWeight: 'bold',
+  },
+  verySmall: {
+    paddingVertical: verticalScale(0),
+    justifyContent: 'center',
+    fontWeight: 'bold',
+    fontSize: 12,
+    lineHeight: 14,
   },
 });
 

@@ -12,15 +12,12 @@ class EthereumDriver implements IBlockchainDriver {
   network: any;
   wallet: any;
   assets: IToken[] = [];
-  constructor(wallet: any, config: IBlockchain) {
+  constructor(address: string, config: IBlockchain) {
     this.config = config;
 
     this.network = new Network(config, true);
 
-    this.wallet = new ethers.VoidSigner(
-      wallet.address,
-      this.network.getProvider(),
-    );
+    this.wallet = new ethers.VoidSigner(address, this.network.getProvider());
   }
 
   async getNativeTokenBalance(): Promise<string> {
@@ -31,9 +28,27 @@ class EthereumDriver implements IBlockchainDriver {
     );
   }
 
+  async getTokenBalance(token: IToken): Promise<string> {
+    try {
+      await this.wallet.connect(this.network.getProvider());
+      if (token.type === TokenType.NATIVE) {
+        const coin = new Coin(this.wallet, token, this.network);
+        const balance = await coin.getBalance();
+        return balance;
+      } else {
+        const _token = new Token(this.wallet, token, this.network);
+        const balance = await _token.getBalance();
+        this.assets.push({...token, balance});
+        return balance;
+      }
+    } catch (error) {
+      console.log(error);
+      return '0';
+    }
+  }
+
   async getBalance(tokens: IToken[]): Promise<IToken[]> {
     await this.wallet.connect(this.network.getProvider());
-
     if (tokens.length > 0) {
       for (const token of tokens) {
         if (token.type === TokenType.NATIVE) {
@@ -57,7 +72,6 @@ class EthereumDriver implements IBlockchainDriver {
     balance: Promise<ethers.BigNumberish>,
     decimals: number,
   ) {
-    console.log('balance', balance);
     return ethers.formatUnits(await balance, decimals);
   }
 }

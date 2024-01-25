@@ -7,6 +7,8 @@ import LockedLayout from './LockedLayout';
 import EnterLayout from './EnterLayout';
 import {DEFAULT} from './common';
 import SetLayout from './SetLayout';
+import useApplication from '@hooks/useApplication';
+import {colors} from '@ui/core/theme';
 
 const PinCode = ({
   pin,
@@ -25,6 +27,7 @@ const PinCode = ({
   const [curOptions, setCurOptions] = useState<PinCodeT.Options>(
     DEFAULT.Options,
   );
+  const {lockOnWrongPin} = useApplication();
   const [curTextOptions, setCurTextOptions] = useState<PinCodeT.TextOptions>(
     DEFAULT.TextOptions,
   );
@@ -83,7 +86,31 @@ const PinCode = ({
           onEnter={onEnter}
           onMaxAttempt={() => switchMode(PinCodeT.Modes.Locked)}
           onReset={() => switchMode(PinCodeT.Modes.Reset)}
-          styles={styles?.enter}
+          styles={{
+            button: {
+              backgroundColor: colors.primary,
+              borderRadius: 24,
+            },
+            pinContainer: {
+              // backgroundColor: 'red',
+            },
+            pin: {
+              backgroundColor: colors.background,
+              borderBottomWidth: 1,
+              borderBottomColor: colors.tertiary,
+              width: 20,
+            },
+            enteredPin: {
+              backgroundColor: colors.primary,
+              width: 10,
+              height: 10,
+              marginHorizontal: 15,
+              paddingBottom: 0,
+              marginTop: -10,
+              borderBottomWidth: 1,
+              borderBottomColor: colors.primary,
+            },
+          }}
         />
       )}
       {curMode == PinCodeT.Modes.Set && (
@@ -103,7 +130,10 @@ const PinCode = ({
           options={curOptions}
           textOptions={curTextOptions.locked}
           styles={styles?.locked}
-          onClockFinish={() => switchMode(PinCodeT.Modes.Enter)}
+          onClockFinish={() => {
+            lockOnWrongPin(false);
+            switchMode(PinCodeT.Modes.Enter);
+          }}
         />
       )}
       {curMode == PinCodeT.Modes.Reset && (

@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unstable-nested-components */
 import React, {useEffect, useRef} from 'react';
 import {Animated, SafeAreaView, StyleSheet} from 'react-native';
 import {colors} from '@ui/core/theme';

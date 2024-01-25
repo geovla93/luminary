@@ -3,12 +3,15 @@ import BottomSheet, {
   BottomSheetFlatList,
   BottomSheetTextInput,
 } from '@gorhom/bottom-sheet';
-import {View, StyleSheet} from 'react-native';
+import {StyleSheet} from 'react-native';
 import {useWalletContext} from '@hooks/useWalletContext';
 
-import SquareButton from '@ui/core/components/SquareButton';
 import ChainItem from './ChainItem';
 import {IBlockchain} from '@itypes/blockchain';
+import {useIntl} from 'react-intl';
+
+import {colors} from '@ui/core/theme';
+import HeaderComponent from '@components/HeaderComponent';
 
 interface IChainPicker {
   bottomSheetRef: any;
@@ -17,6 +20,7 @@ interface IChainPicker {
 }
 
 const ChainPicker = ({bottomSheetRef, onPress, onClose}: IChainPicker) => {
+  const {formatMessage} = useIntl();
   const {chains} = useWalletContext();
   const [search, setSearch] = useState('');
   const [currentWalletChains, setCurrentWalletChains] = useState<IBlockchain[]>(
@@ -29,9 +33,7 @@ const ChainPicker = ({bottomSheetRef, onPress, onClose}: IChainPicker) => {
   useEffect(() => {
     if (search) {
       setCurrentWalletChains(
-        chains.filter((chain: IBlockchain) =>
-          chain.name.toLowerCase().includes(search.toLowerCase()),
-        ),
+        chains.filter((chain: IBlockchain) => chain.name.includes(search)),
       );
     } else {
       setCurrentWalletChains(chains);
@@ -39,12 +41,10 @@ const ChainPicker = ({bottomSheetRef, onPress, onClose}: IChainPicker) => {
   }, [search]);
 
   // variables
-  const snapPoints = useMemo(() => ['55%'], []);
+  const snapPoints = useMemo(() => ['90%'], []);
 
   // callbacks
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log('handleSheetChanges', index);
-  }, []);
+  const handleSheetChanges = useCallback((_index: number) => {}, []);
 
   return (
     <BottomSheet
@@ -54,14 +54,13 @@ const ChainPicker = ({bottomSheetRef, onPress, onClose}: IChainPicker) => {
       backgroundStyle={styles.content}
       snapPoints={snapPoints}
       onChange={handleSheetChanges}>
-      <View style={styles.actions}>
-        <SquareButton icon="close" onPress={onClose} />
-      </View>
+      <HeaderComponent title="select_chain" onClose={() => onClose()} />
       <BottomSheetTextInput
-        placeholder="Search"
+        placeholder={formatMessage({id: 'search_chain'})}
         value={search}
         onChangeText={(value: string) => setSearch(value)}
         style={styles.input}
+        placeholderTextColor={colors.primary}
         focusable
       />
       <BottomSheetFlatList
@@ -82,7 +81,7 @@ const ChainPicker = ({bottomSheetRef, onPress, onClose}: IChainPicker) => {
 
 const styles = StyleSheet.create({
   content: {
-    backgroundColor: '#2D2A24',
+    backgroundColor: '#1E1B16',
   },
   arrowContainer: {
     justifyContent: 'center',
@@ -100,16 +99,17 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-end',
     padding: 10,
+    alignItems: 'center',
   },
   handle: {
     display: 'none',
   },
   input: {
-    backgroundColor: '#221F1A',
+    backgroundColor: '#2D2A24',
     borderRadius: 15,
-    marginHorizontal: 10,
+    marginHorizontal: 20,
     fontSize: 18,
-    marginBottom: 10,
+    marginVertical: 10,
     height: 50,
     paddingHorizontal: 20,
     color: 'white',

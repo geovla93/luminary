@@ -1,4 +1,3 @@
-/* eslint-disable react/no-unstable-nested-components */
 import React from 'react';
 import {Image, StyleSheet, View} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -14,13 +13,12 @@ type IChainSelector = {
 
 const ChainSelector = ({onPress, chain}: IChainSelector) => {
   const {wallet} = useWalletContext();
-  console.log('wallet', wallet);
   return (
     <List.Section>
       <List.Item
         onPress={onPress}
         style={styles.root}
-        title={chain.name}
+        title={chain?.name}
         description={formatAddress(wallet.address)}
         left={() => <Image style={styles.chainImage} source={chain.image} />}
         right={() => (

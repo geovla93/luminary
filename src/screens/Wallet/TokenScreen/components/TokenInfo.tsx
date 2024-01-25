@@ -1,10 +1,11 @@
-import {Typography} from '@ui/core/components';
 import React from 'react';
-import {useIntl} from 'react-intl';
+import useApplication from '@hooks/useApplication';
+import {Typography} from '@ui/core/components';
 import {View, Image, StyleSheet} from 'react-native';
+import {colors} from '@ui/core/theme';
 
 const TokenInfo = ({token}: any) => {
-  const {formatNumber} = useIntl();
+  const {balanceDisplay} = useApplication();
   return (
     <View style={styles.root}>
       <View style={styles.tokenNameContainer}>
@@ -12,18 +13,17 @@ const TokenInfo = ({token}: any) => {
           {token.symbol.toUpperCase()}
         </Typography>
         <Typography variant="bodySmall" sx={{marginTop: 10}}>
-          {`${formatNumber(token.balance, {
-            maximumFractionDigits: 3,
-          })} ${token.symbol.toUpperCase()}`}
+          {balanceDisplay(token.balance)} {token.symbol.toUpperCase()}
         </Typography>
       </View>
       <View style={styles.tokenImageContainer}>
         <Image
-          style={{width: 40, height: 40}}
+          style={styles.tokenLogo}
           source={{
             uri: token.image,
           }}
         />
+        <Image source={{uri: token.chainImage}} style={styles.chainLogo} />
       </View>
     </View>
   );
@@ -40,7 +40,25 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     justifyContent: 'space-between',
   },
-  tokenImageContainer: {},
+  tokenImageContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  chainLogo: {
+    width: 15,
+    height: 15,
+    right: -3,
+    bottom: -3,
+    borderRadius: 50,
+    position: 'absolute',
+    backgroundColor: '#fff',
+  },
+  tokenLogo: {
+    width: 40,
+    height: 40,
+    borderRadius: 30,
+    backgroundColor: colors.backdrop,
+  },
 });
 
 export default TokenInfo;

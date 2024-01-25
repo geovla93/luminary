@@ -12,6 +12,11 @@ interface IPinComponentProps {
   onSetCancel: () => void;
   onReset: () => void;
   onEnter: (pin: string) => void;
+  onModeChanged: (
+    currMode: PinCodeT.Modes,
+    newMode: PinCodeT.Modes | undefined,
+  ) => void;
+  lockDuration: number;
 }
 
 const PinComponent = ({
@@ -22,6 +27,8 @@ const PinComponent = ({
   onSetCancel,
   onReset,
   onEnter,
+  onModeChanged,
+  lockDuration,
 }: IPinComponentProps) => {
   return (
     <PinCode
@@ -29,8 +36,10 @@ const PinComponent = ({
       mode={pinMode}
       visible={visible}
       options={{
-        disableLock: true,
         allowReset: false,
+        pinLength: 6,
+        maxAttempt: 3,
+        lockDuration,
         backSpace: (
           <Icon name="backspace-outline" size={24} color={colors.onTertiary} />
         ),
@@ -46,18 +55,9 @@ const PinComponent = ({
       onSetCancel={onSetCancel}
       onReset={onReset}
       onEnter={onEnter}
+      onModeChanged={onModeChanged}
     />
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-  },
-  text: {},
-});
 
 export default PinComponent;

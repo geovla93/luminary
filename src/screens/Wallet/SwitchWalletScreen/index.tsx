@@ -2,18 +2,14 @@ import React, {useEffect, useState} from 'react';
 import {SafeAreaView, StyleSheet, View} from 'react-native';
 
 import {useNavigation} from '@react-navigation/native';
-import SquareButton from 'src/ui/core/components/SquareButton';
-import {Typography} from '@ui/core/components';
-import {colors} from '@ui/core/theme';
-import {useIntl} from 'react-intl';
 import {useWalletContext} from '@hooks/useWalletContext';
 import {FlatList} from 'react-native';
 import WalletItem from './components/WalletItem';
+import HeaderComponent from '@components/HeaderComponent';
 
 const SwitchWalletScreen = () => {
-  const {formatMessage} = useIntl();
   const navigation = useNavigation<any>();
-  const {walletPairs, current} = useWalletContext();
+  const {walletPairs} = useWalletContext();
 
   const [wallets, setWallets] = useState<any[]>([]);
 
@@ -29,14 +25,11 @@ const SwitchWalletScreen = () => {
 
   return (
     <SafeAreaView style={{flex: 1}}>
+      <HeaderComponent
+        title={'select_wallet'}
+        onBack={() => navigation.goBack()}
+      />
       <View style={styles.container}>
-        <View style={styles.title}>
-          <View />
-          <Typography variant={'titleLarge'} sx={styles.text}>
-            {formatMessage({id: 'select_wallet'})}
-          </Typography>
-          <SquareButton onPress={() => navigation.goBack()} icon="close" />
-        </View>
         <View style={styles.content}>
           <FlatList
             data={wallets}
@@ -56,10 +49,8 @@ export default SwitchWalletScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.inverseOnSurface,
   },
   title: {
-    backgroundColor: colors.inverseOnSurface,
     paddingVertical: 13,
     paddingHorizontal: 10,
     alignItems: 'center',
@@ -68,11 +59,11 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 14,
     borderTopLeftRadius: 14,
     shadowColor: 'black',
-    shadowOffset: {height: -3, width: 3},
     shadowRadius: 3,
     shadowOpacity: 0.3,
   },
   content: {
+    flex: 1,
     marginTop: 20,
     marginHorizontal: 20,
   },

@@ -1,38 +1,46 @@
-/* eslint-disable react/no-unstable-nested-components */
 import React from 'react';
 
-import {View, StyleSheet} from 'react-native';
-import {Button, Typography} from '@ui/core/components';
+import {StyleSheet} from 'react-native';
+import {Button} from '@ui/core/components';
 import {useNavigation} from '@react-navigation/native';
-import BottomSheet, {BottomSheetView} from '@gorhom/bottom-sheet';
-import SquareButton from '@ui/core/components/SquareButton';
-import {List} from 'react-native-paper';
+import BottomSheet, {BottomSheetScrollView} from '@gorhom/bottom-sheet';
+import {List, Switch} from 'react-native-paper';
 import {SCREENS} from '@screens/screens';
+import {useIntl} from 'react-intl';
+import HeaderComponent from '@components/HeaderComponent';
+import {colors} from '@ui/core/theme';
 
 interface INavigation {
   navigate: (screen: string) => void;
 }
-const TokenToolbox = ({sheetRef, onClose, onSortSelect, selected}: any) => {
+const TokenToolbox = ({
+  sheetRef,
+  onClose,
+  onSortSelect,
+  toggleShowZeroBalance,
+  hideZeroBalance,
+  selected,
+}: any) => {
   const navigation = useNavigation<INavigation>();
-  const snapPoints = React.useMemo(() => ['55%'], []);
+  const {formatMessage} = useIntl();
+  const snapPoints = React.useMemo(() => ['60%'], []);
   return (
     <BottomSheet
       ref={sheetRef}
       backgroundStyle={styles.root}
       handleStyle={styles.handle}
+      handleComponent={() => (
+        <HeaderComponent title="sort_tokens" onClose={() => onClose()} />
+      )}
       index={0}
       snapPoints={snapPoints}>
-      <BottomSheetView style={styles.content}>
-        <View style={styles.actions}>
-          <Typography variant={'headlineSmall'}>Sort Tokens</Typography>
-          <SquareButton icon="close" onPress={onClose} />
-        </View>
+      <BottomSheetScrollView style={styles.content}>
         <List.Section>
           <List.Item
             style={styles.listItem}
             onPress={() => onSortSelect('name')}
-            title="Token Name"
-            description="Sort tokens by name"
+            title={formatMessage({id: 'token_name'})}
+            description={formatMessage({id: 'token_name_desc'})}
             // checked icon
             right={() =>
               selected === 'name' && <List.Icon icon="check-circle-outline" />
@@ -41,8 +49,8 @@ const TokenToolbox = ({sheetRef, onClose, onSortSelect, selected}: any) => {
           <List.Item
             style={styles.listItem}
             onPress={() => onSortSelect('price')}
-            title="Token Price"
-            description="Sort tokens by price"
+            title={formatMessage({id: 'token_price'})}
+            description={formatMessage({id: 'token_price_desc'})}
             right={() =>
               selected === 'price' && <List.Icon icon="check-circle-outline" />
             }
@@ -50,14 +58,26 @@ const TokenToolbox = ({sheetRef, onClose, onSortSelect, selected}: any) => {
           <List.Item
             style={styles.listItem}
             onPress={() => onSortSelect('value')}
-            title="Token Holdings"
-            description="Sort tokens by holdings"
+            title={formatMessage({id: 'token_balance'})}
+            description={formatMessage({id: 'token_balance_desc'})}
             right={() =>
               selected === 'value' && <List.Icon icon="check-circle-outline" />
             }
           />
+
+          <List.Item
+            title={formatMessage({id: 'hide_zero_balances'})}
+            description={formatMessage({id: 'hide_zero_balances_desc'})}
+            right={() => (
+              <Switch
+                value={hideZeroBalance}
+                color={colors.primary}
+                onValueChange={() => toggleShowZeroBalance()}
+              />
+            )}
+          />
         </List.Section>
-      </BottomSheetView>
+      </BottomSheetScrollView>
       <Button
         onPress={() => {
           onClose();
@@ -65,7 +85,7 @@ const TokenToolbox = ({sheetRef, onClose, onSortSelect, selected}: any) => {
         }}
         size="small"
         sx={styles.button}>
-        Manage Tokens
+        {formatMessage({id: 'manage_tokens'})}
       </Button>
     </BottomSheet>
   );
@@ -73,10 +93,11 @@ const TokenToolbox = ({sheetRef, onClose, onSortSelect, selected}: any) => {
 
 const styles = StyleSheet.create({
   root: {
-    backgroundColor: '#2D2A24',
+    backgroundColor: '#1E1C1A',
   },
   content: {
-    backgroundColor: '#2D2A24',
+    backgroundColor: '#1E1C1A',
+    marginVertical: 10,
     paddingHorizontal: 20,
   },
   handle: {},
@@ -92,7 +113,7 @@ const styles = StyleSheet.create({
     bottom: 40,
   },
   listItem: {
-    backgroundColor: '#1E1C1A',
+    backgroundColor: '#2D2A24',
     borderRadius: 10,
     marginBottom: 10,
     padding: 10,

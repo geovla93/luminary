@@ -22,9 +22,9 @@ const styles = StyleSheet.create({
   itemContainer: {
     borderRadius: 12,
     overflow: 'hidden',
-    height: 68,
-    width: 68,
-    marginRight: 20,
+    height: 40,
+    width: 40,
+    marginRight: 10,
     backgroundColor: 'rgba(255, 255, 255, .1)',
     padding: 5,
   },

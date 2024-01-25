@@ -1,3 +1,4 @@
+import {useWalletAsUser} from '@hooks/useWalletAsUser';
 import Typography from '@ui/core/components/Typography';
 import {colors} from '@ui/core/theme';
 import React from 'react';
@@ -6,6 +7,7 @@ import {ImageBackground, StyleSheet} from 'react-native';
 
 const BregNoMessages = () => {
   const {formatMessage} = useIntl();
+  const {user} = useWalletAsUser();
   return (
     <ImageBackground
       style={{
@@ -26,7 +28,7 @@ const BregNoMessages = () => {
             id: 'hello_user',
           },
           {
-            name: '@iluminary', // change here
+            name: user.alias || ' friend', // change here
           },
         )}
       </Typography>

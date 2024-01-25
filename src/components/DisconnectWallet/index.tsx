@@ -31,15 +31,21 @@ const DisconnectWallet = ({
             {formatMessage({id: 'important_info_2'})}
           </Typography>
         </Dialog.Content>
-        <Dialog.Actions style={{justifyContent: 'space-between'}}>
+        <Dialog.Actions style={{flexDirection: 'column'}}>
           <Button
             sx={{paddingVertical: 0}}
             buttonColor="red"
             textColor="white"
+            size="small"
             onPress={onConfirm}>
             {formatMessage({id: 'saved_phrase_confirm'})}
           </Button>
-          <Button sx={{paddingVertical: 0}} variant="text" onPress={hideDialog}>
+          <Button
+            size="small"
+            sx={{paddingVertical: 0}}
+            variant="text"
+            textColor="#000"
+            onPress={hideDialog}>
             {formatMessage({id: 'cancel'})}
           </Button>
         </Dialog.Actions>

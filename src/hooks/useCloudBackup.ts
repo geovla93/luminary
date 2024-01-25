@@ -19,7 +19,6 @@ const useCloudBackup = (filename: string) => {
 
   const writeFileToCloud = async (fileContent: string) => {
     setLoading(true);
-    console.log(fileContent);
     try {
       console.log('write file to cloud');
       await CloudStorage.writeFile(

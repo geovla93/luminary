@@ -1,5 +1,6 @@
 import React from 'react';
-import {View, StyleSheet, TouchableOpacity, Image} from 'react-native';
+import {View, StyleSheet, TouchableOpacity} from 'react-native';
+import Image from '@components/Image';
 import {Typography} from '@ui/core/components';
 import {getRelativeTime} from '@utils/functions';
 import {useIntl} from 'react-intl';

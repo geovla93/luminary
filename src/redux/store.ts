@@ -11,6 +11,7 @@ import userSlice from './slices/user.slice';
 import dappsSlice from './slices/dapps.slice';
 import contactsSlice from './slices/contacts.slice';
 import bregSlice from '@redux/slices/breg.slice';
+import nftsSlice from './slices/nfts.slice';
 
 export const rootReducer = combineReducers({
   application: applicationSlice,
@@ -22,6 +23,7 @@ export const rootReducer = combineReducers({
   dapps: dappsSlice,
   contacts: contactsSlice,
   breg: bregSlice,
+  nfts: nftsSlice,
 });
 
 export const persistConfig = {

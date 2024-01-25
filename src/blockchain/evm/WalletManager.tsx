@@ -1,6 +1,7 @@
 import {HDNodeWallet, Mnemonic, ethers} from 'ethers';
 import {Blockchain} from '@itypes/blockchain';
 import {EVM_CHAINS} from '..';
+import {DEFAULT_DERIVATION_PATH} from 'src/configs/security';
 
 class WalletManager {
   public walletIndex = 0;
@@ -42,11 +43,12 @@ class WalletManager {
     });
   }
 
-  public createWallet(walletIndex: number = 0): Promise<HDNodeWallet> {
+  public createWallet(
+    derivationPath: string = DEFAULT_DERIVATION_PATH,
+  ): Promise<HDNodeWallet> {
     return new Promise(async (resolve, reject) => {
       try {
-        this.walletIndex = walletIndex;
-        this.derivationPath = `m/44'/60'/0'/0/${this.walletIndex}`;
+        this.derivationPath = derivationPath;
         const freshWallet = await this.createWalletInternal(
           this.derivationPath,
         );
@@ -59,12 +61,11 @@ class WalletManager {
 
   public async recoverWallet(
     passPhrase: string,
-    accountIndex = '0',
+    derivationPath: string = DEFAULT_DERIVATION_PATH,
   ): Promise<HDNodeWallet> {
     try {
       this.mnemonic = Mnemonic.fromPhrase(passPhrase);
-      this.walletIndex = parseInt(accountIndex, 10);
-      this.derivationPath = `m/44'/60'/0'/0/${this.walletIndex}`;
+      this.derivationPath = derivationPath;
       return await this.createWalletInternal(
         this.derivationPath,
         this.mnemonic,

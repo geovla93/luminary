@@ -1,7 +1,8 @@
 import React, {useMemo, useState, useCallback, useEffect, Ref} from 'react';
 import BottomSheet, {
-  BottomSheetTextInput,
   BottomSheetScrollView,
+  BottomSheetTextInput,
+  BottomSheetView,
 } from '@gorhom/bottom-sheet';
 import {verticalScale} from 'react-native-size-matters';
 
@@ -28,7 +29,7 @@ const SetWalletPassword = ({
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
   const snapPoints = useMemo(() => ['70%'], []);
-
+  // const snapPoints = ['70%'];
   const handleSheetChanges = useCallback((index: number) => {
     console.log('handleSheetChanges', index);
   }, []);
@@ -84,6 +85,9 @@ const SetWalletPassword = ({
       snapPoints={snapPoints}
       index={0}
       onChange={handleSheetChanges}
+      keyboardBehavior="interactive"
+      enableDynamicSizing={false}
+      keyboardBlurBehavior={'restore'}
       backgroundStyle={styles.content}>
       <BottomSheetScrollView>
         <View style={styles.actions}>
@@ -103,6 +107,7 @@ const SetWalletPassword = ({
             placeholder={formatMessage({id: 'password'})}
             value={password}
             secureTextEntry
+            placeholderTextColor="#8E8E8E"
             onChangeText={(value: string) => setPassword(value)}
             style={styles.input}
             focusable
@@ -111,6 +116,7 @@ const SetWalletPassword = ({
           <BottomSheetTextInput
             placeholder={formatMessage({id: 'password_confirm'})}
             value={confirmPassword}
+            placeholderTextColor="#8E8E8E"
             secureTextEntry
             onChangeText={(value: string) => setConfirmPassword(value)}
             style={styles.input}
@@ -127,6 +133,7 @@ const SetWalletPassword = ({
           )}
           <Button
             variant="contained"
+            size="medium"
             disabled={!!error || !password || !confirmPassword}
             onPress={() => onValidPasswordSet(password)}
             sx={{marginTop: verticalScale(20)}}>

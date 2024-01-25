@@ -1,5 +1,4 @@
-/* eslint-disable react/no-unstable-nested-components */
-import React, {useState} from 'react';
+import React, {useState, useRef} from 'react';
 import {
   View,
   StyleSheet,
@@ -8,18 +7,20 @@ import {
   Image,
   TouchableOpacity,
   Linking,
+  Animated,
+  Alert,
 } from 'react-native';
-import {Typography} from '@ui/core/components';
+import {Button, Typography} from '@ui/core/components';
 import SquareButton from 'src/ui/core/components/SquareButton';
 import {useNavigation} from '@react-navigation/native';
-import {Avatar, IconButton, List, useTheme} from 'react-native-paper';
+import {List, useTheme} from 'react-native-paper';
 import Paper from '@components/Paper';
 import DisconnectWallet from '@components/DisconnectWallet';
 import useDisconnect from '@hooks/useDisconnect';
 import {SCREENS} from '@screens/screens';
 import {useIntl} from 'react-intl';
 import HelpIcon from '@ui/core/Icons/HelpIcon';
-import InfoIcon from '@ui/core/Icons/InfoIcon';
+// import InfoIcon from '@ui/core/Icons/InfoIcon';
 import WalletConnectIcon from '@ui/core/Icons/WalletConnectIcon';
 import LanguageIcon from '@ui/core/Icons/LanguageIcon';
 import SecurityPhraseIcon from '@ui/core/Icons/RecoveryPhraseIcon';
@@ -32,9 +33,13 @@ import YoutubeIcon from '@ui/core/Icons/YoutubeIcon';
 import InstagramIcon from 'src/ui/core/Icons/InstagramIcon';
 import LinkedInIcon from '@ui/core/Icons/LinkedInIcon';
 import {colors} from '@ui/core/theme';
+import Intercom from '@intercom/intercom-react-native';
+import {useWalletAsUser} from '@hooks/useWalletAsUser';
 
 const ProfileMainScreen = () => {
   const navigation = useNavigation<any>();
+  const {user} = useWalletAsUser();
+  const scrollY = useRef(new Animated.Value(0)).current;
   const disconnect = useDisconnect();
   const {formatMessage} = useIntl();
   const [disconnecting, setDisconnecting] = useState(false);
@@ -45,29 +50,89 @@ const ProfileMainScreen = () => {
     setDisconnecting(false);
   };
 
+  const opacity = scrollY.interpolate({
+    inputRange: [0, 100], // Change these values according to your needs
+    outputRange: [1, 0], // Fully visible to fully transparent
+    extrapolate: 'clamp', // This will clamp the output values to stay between 0 and 1
+  });
+
+  const inverseOpacity = scrollY.interpolate({
+    inputRange: [0, 200], // Change these values according to your needs
+    outputRange: [0, 1], // Fully visible to fully transparent
+    extrapolate: 'clamp', // This will clamp the output values to stay between 0 and 1
+  });
+
   return (
     <SafeAreaView style={styles.root}>
-      <ScrollView showsVerticalScrollIndicator={false} style={styles.container}>
-        <View style={styles.header}>
-          <SquareButton onPress={() => navigation.goBack()} icon="close" />
-        </View>
+      <View style={styles.header}>
+        <Animated.View style={[styles.username, {opacity: inverseOpacity}]}>
+          <Image
+            style={{
+              backgroundColor: theme.colors.tertiary,
+              width: 40,
+              height: 40,
+              borderRadius: 15,
+            }}
+            source={require('./logo.png')}
+          />
+          <View>
+            {user.alias && (
+              <Typography ml={10} variant="titleMedium">
+                @{user.alias}
+              </Typography>
+            )}
+          </View>
+        </Animated.View>
+        <SquareButton onPress={() => navigation.goBack()} icon="close" />
+      </View>
+      <ScrollView
+        onScroll={Animated.event(
+          [{nativeEvent: {contentOffset: {y: scrollY}}}],
+          {useNativeDriver: false},
+        )}
+        scrollEventThrottle={16}
+        showsVerticalScrollIndicator={false}
+        style={styles.container}>
         <View style={styles.avatarContainer}>
-          <Avatar.Image
-            size={80}
-            style={{backgroundColor: theme.colors.tertiary}}
+          <Animated.Image
+            style={{
+              backgroundColor: theme.colors.tertiary,
+              width: 70,
+              height: 70,
+              borderRadius: 50,
+              opacity,
+              transform: [
+                {
+                  scale: opacity.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0.5, 1],
+                  }),
+                },
+              ],
+            }}
             source={require('./logo.png')}
           />
           <View style={styles.hero}>
-            <Typography variant="titleMedium">@iluminary</Typography>
-            <IconButton
-              onPress={() => console.log('Edit herotag')}
-              icon="pencil"
-              size={18}
-            />
+            {user.alias && (
+              <Typography variant="titleMedium">@{user.alias}</Typography>
+            )}
+            {!user.alias && (
+              <Button
+                size="small"
+                variant="contained"
+                sx={{marginTop: 10}}
+                onPress={() =>
+                  navigation.navigate(SCREENS.APP_CREATE_USERNAME_SCREEN)
+                }>
+                {formatMessage({id: 'add_username'})}
+              </Button>
+            )}
           </View>
         </View>
         <View style={styles.infoContent}>
-          <Paper sx={styles.card}>
+          <Paper
+            onPress={() => Alert.alert('This feature is disabled')}
+            sx={styles.card}>
             <Image
               source={require('@assets/card-icon.png')}
               style={{width: 49, height: 49}}
@@ -91,7 +156,9 @@ const ProfileMainScreen = () => {
               {formatMessage({id: 'protected_description'})}
             </Typography>
           </Paper>
-          <Paper sx={styles.card}>
+          <Paper
+            onPress={() => Alert.alert('This feature is disabled')}
+            sx={styles.card}>
             <Image
               source={require('@assets/qr-icon.png')}
               style={{width: 49, height: 49}}
@@ -110,15 +177,15 @@ const ProfileMainScreen = () => {
               style={{paddingLeft: 5}}
               titleStyle={styles.itemTitle}
               title={formatMessage({id: 'help'})}
-              onPress={() => console.log('help')}
+              onPress={() => Intercom.present()}
               left={() => <HelpIcon />}
             />
-            <List.Item
+            {/* <List.Item
               style={{paddingLeft: 5}}
               title={formatMessage({id: 'about'})}
               onPress={() => console.log('about')}
               left={() => <InfoIcon />}
-            />
+            /> */}
             <List.Item
               style={{paddingLeft: 5}}
               titleStyle={styles.itemTitle}
@@ -169,7 +236,9 @@ const ProfileMainScreen = () => {
               style={{paddingLeft: 5}}
               titleStyle={styles.itemTitle}
               title={formatMessage({id: 'disconnect_wallet'})}
-              onPress={() => setDisconnecting(true)}
+              onPress={() =>
+                navigation.navigate(SCREENS.APP_DISCONNECT_WALLET_SCREEN)
+              }
               left={() => <LogoutIcon />}
             />
           </Paper>
@@ -229,6 +298,14 @@ const styles = StyleSheet.create({
   },
   header: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+  },
+  username: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
   avatarContainer: {
     alignItems: 'center',
@@ -264,7 +341,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-evenly',
-    marginTop: 20,
+    marginVertical: 20,
   },
   socialButton: {
     backgroundColor: '#1E1B16',

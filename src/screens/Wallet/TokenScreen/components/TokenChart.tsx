@@ -1,36 +1,33 @@
 import React from 'react';
 import {ScrollView, StyleSheet, View} from 'react-native';
-import {useTheme} from 'react-native-paper';
 import {Typography} from '@ui/core/components';
 import Icon from 'react-native-vector-icons/FontAwesome6';
 import ChartType from '@ui/core/Icons/ChartType';
 import SvgIconBtn from '@ui/core/components/SvgIconBtn';
 import WebView from 'react-native-webview';
 import {useIntl} from 'react-intl';
+import useApplication from '@hooks/useApplication';
+import {colors} from '@ui/core/theme';
 
 const TokenChart = ({token}: any) => {
   const {formatNumber, formatMessage} = useIntl();
-  const theme = useTheme();
+  const {priceDisplay} = useApplication();
+
   const growing = token?.price?.usd_24h_change >= 0;
   if (!token) {
     return null;
   }
+
+  const onShouldStartLoad = () => true;
+
   return (
-    <ScrollView
-      style={{
-        backgroundColor: theme.colors.backdrop,
-        padding: 10,
-        borderRadius: 20,
-      }}>
+    <ScrollView style={styles.scrollViewStyle}>
       <View style={styles.chartHeader}>
         <Typography
           variant="headlineMedium"
           fontWeight="bold"
           sx={{marginBottom: 10}}>
-          {formatNumber(token?.price?.usd, {
-            style: 'currency',
-            currency: 'USD',
-          })}
+          {priceDisplay(token.price.usd, {showCurrency: true})}
         </Typography>
         <SvgIconBtn icon={<ChartType />} />
       </View>
@@ -68,7 +65,7 @@ const TokenChart = ({token}: any) => {
           allowUniversalAccessFromFileURLs={true}
           originWhitelist={['*']}
           automaticallyAdjustContentInsets
-          onShouldStartLoadWithRequest={() => true}
+          onShouldStartLoadWithRequest={onShouldStartLoad}
           source={{
             uri: `https://api.iluminary.app/services/trading-view?symbol=${token.symbol.toUpperCase()}USDT&interval=D&locale=ro`,
           }}
@@ -104,6 +101,12 @@ const styles = StyleSheet.create({
   webviewContainer: {
     marginTop: 10,
     height: 200,
+  },
+  scrollViewStyle: {
+    backgroundColor: colors.backdrop,
+    marginHorizontal: 10,
+    padding: 10,
+    borderRadius: 20,
   },
 });
 

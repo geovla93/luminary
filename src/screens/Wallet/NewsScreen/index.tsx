@@ -1,11 +1,11 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {Typography} from '@ui/core/components';
 import {
+  FlatList,
   RefreshControl,
   SafeAreaView,
   StyleSheet,
   View,
-  VirtualizedList,
 } from 'react-native';
 import NewsCard from '@components/NewsCard';
 import {useIntl} from 'react-intl';
@@ -15,6 +15,7 @@ import {useFocusEffect} from '@react-navigation/native';
 import {NewsItem} from '@itypes/news';
 import {useAudioManager} from '@components/AudioManager';
 import SnackBar from '@components/SnackBar';
+import LoadingAnimation from '@components/LoadingComponent';
 
 const NewsScreen = () => {
   const {formatMessage} = useIntl();
@@ -95,26 +96,30 @@ const NewsScreen = () => {
             />
           )}
         </View>
-
-        <VirtualizedList
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} />
-          }
-          style={styles.newsList}
-          getItemCount={data => data.length}
-          showsVerticalScrollIndicator={false}
-          getItem={(data, index) => data[index]}
-          renderItem={({item}: {item: any}) => (
-            <NewsCard
-              isOpened={opened?.includes(item.id)}
-              translatedTitle={translatedTitle}
-              onPress={(url: string, id: number) => openNews(url, id)}
-              item={item}
-            />
-          )}
-          data={news}
-          keyExtractor={(item, _index) => item?.id.toString()}
-        />
+        {news && news.length === 0 ? (
+          <LoadingAnimation />
+        ) : (
+          <FlatList
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={handleRefresh}
+              />
+            }
+            style={styles.newsList}
+            showsVerticalScrollIndicator={false}
+            renderItem={({item}: {item: any}) => (
+              <NewsCard
+                isOpened={opened?.includes(item.id)}
+                translatedTitle={translatedTitle}
+                onPress={(url: string, id: number) => openNews(url, id)}
+                item={item}
+              />
+            )}
+            data={news}
+            keyExtractor={(item, _index) => item?.id.toString()}
+          />
+        )}
       </View>
     </SafeAreaView>
   );

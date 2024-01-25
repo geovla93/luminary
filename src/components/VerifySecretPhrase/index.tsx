@@ -53,7 +53,7 @@ const Option = ({word, onPress}: IOption) => {
   );
 };
 
-const getRamdomWords = (phraseWords: string[]) => {
+const getRandomWords = (phraseWords: string[]) => {
   const randomNo = randomNumbers(2048, 3);
 
   const words = [];
@@ -71,6 +71,7 @@ const VerifySecretPhrase = ({
   setSelected,
   selected,
   selectedWords,
+  error,
 }: any) => {
   // const {formatMessage} = useIntl();
 
@@ -78,14 +79,13 @@ const VerifySecretPhrase = ({
 
   useEffect(() => {
     setOptions(
-      getRamdomWords([
+      getRandomWords([
         phrase[selectedWords[0]],
         phrase[selectedWords[1]],
         phrase[selectedWords[2]],
       ]),
     );
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [selectedWords]);
 
   const handleWordPress = (word: string) => {
     const copy = [...selected];
@@ -131,6 +131,11 @@ const VerifySecretPhrase = ({
           />
         </View>
       </View>
+      {!!error && (
+        <View style={{marginVertical: 10}}>
+          <Typography color="red">{error}</Typography>
+        </View>
+      )}
       <View style={styles.options}>
         {options.map((word, index) => (
           <Option

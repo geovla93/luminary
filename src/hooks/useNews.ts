@@ -181,7 +181,9 @@ const useNews = (): INewsContext => {
     openLink(
       locale === 'en'
         ? url
-        : `https://translate.google.com/translate?sl=auto&tl=${googleTranslateLanguages[locale]}&u=${url}`,
+        : //@ts-ignore
+          `https://translate.google.com/translate?sl=auto&tl=${googleTranslateLanguages[locale]}&u=${url}`,
+      locale === 'en' ? {readerMode: true} : {readerMode: false},
     );
   };
 

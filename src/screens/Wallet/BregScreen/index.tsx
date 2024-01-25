@@ -7,7 +7,7 @@ import {colors} from '@ui/core/theme';
 import BregChat from './components/BregChat';
 
 const BregWidget = ({onClose}: {onClose: () => void}) => {
-  const {hideBregSplash, displayBregSplash} = useBreg();
+  const {hideBregSplash, displayBregSplash, askBreg} = useBreg();
 
   return (
     <View style={styles.root}>
@@ -15,7 +15,7 @@ const BregWidget = ({onClose}: {onClose: () => void}) => {
         {displayBregSplash ? (
           <BregIntro onClose={onClose} hideBregSplash={hideBregSplash} />
         ) : (
-          <BregChat onClose={onClose} />
+          <BregChat onClose={onClose} askBreg={askBreg} />
         )}
       </SafeAreaView>
     </View>

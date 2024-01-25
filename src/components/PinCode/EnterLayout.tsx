@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Platform, Pressable, Text, Vibration, View} from 'react-native';
+import {Image, Platform, Pressable, Text, Vibration, View} from 'react-native';
 import {PinCodeT} from './types';
 import {DEFAULT} from './common';
 import NumbersPanel from './components/NumbersPanel';
@@ -7,9 +7,13 @@ import Pin from './components/Pin';
 import {decryptData} from '@utils/encryption';
 import {getSensitiveData} from '@utils/encryptedStorage';
 import {useAppSelector} from '@redux/hook';
+import {WALLET_UNLOCK_KEY} from 'src/configs/security';
+import {useIntl} from 'react-intl';
+import {Typography} from '@ui/core/components';
+import {colors} from '@ui/core/theme';
 
 const EnterLayout = ({
-  pin,
+  // pin,
   styles,
   textOptions,
   options,
@@ -27,6 +31,7 @@ const EnterLayout = ({
   onMaxAttempt: () => void;
   onReset: () => void;
 }) => {
+  const {formatMessage} = useIntl();
   const [curPin, setCurPin] = useState('');
   const {mainWalletAddress} = useAppSelector(state => state.wallet);
   const [disabled, disableButtons] = useState(false);
@@ -48,7 +53,7 @@ const EnterLayout = ({
 
   async function processEnterPin(enteredPin: string) {
     disableButtons(true);
-    const encryptedAddress = await getSensitiveData('unlock');
+    const encryptedAddress = await getSensitiveData(WALLET_UNLOCK_KEY);
     let success = false;
     // if the pin can decrypt the address, then it is the correct pin
     try {
@@ -91,6 +96,7 @@ const EnterLayout = ({
       () => setShowError(false),
       options?.retryLockDuration || DEFAULT.Options.retryLockDuration,
     );
+
     setTimeout(
       () => disableButtons(false),
       options?.retryLockDuration || DEFAULT.Options.retryLockDuration,
@@ -99,33 +105,50 @@ const EnterLayout = ({
 
   return (
     <>
-      <View style={[DEFAULT.Styles.enter?.header, styles?.header]}>
-        <Text style={[DEFAULT.Styles.enter?.title, styles?.title]}>
-          {textOptions.enter?.title || DEFAULT.TextOptions.enter?.title}
-        </Text>
+      <View style={DEFAULT.Styles.enter?.header}>
+        <Image
+          style={{marginBottom: 40, width: 200, height: 50}}
+          resizeMode="contain"
+          source={require('@assets/logo-text.png')}
+        />
+        <Typography
+          fontWeight="bold"
+          variant="displaySmall"
+          textAlign="center"
+          color={colors.onSecondary}>
+          {formatMessage({id: 'enter_pin'})}
+        </Typography>
 
-        <Text style={[DEFAULT.Styles.enter?.subTitle, styles?.subTitle]}>
-          {textOptions.enter?.subTitle?.replace(
-            '{{pinLength}}',
-            (options?.pinLength || DEFAULT.Options.pinLength || 4).toString(),
+        <Typography mt={8} textAlign="center" color={colors.onSurface}>
+          {formatMessage(
+            {
+              id: 'enter_pin_subtitle',
+              defaultMessage: '',
+            },
+            {
+              pinLength: (
+                options?.pinLength ||
+                DEFAULT.Options.pinLength ||
+                6
+              ).toString(),
+            },
           )}
-        </Text>
+        </Typography>
         {showError && (
-          <Text style={[DEFAULT.Styles.enter?.errorText, styles?.errorText]}>
-            {textOptions.enter?.error || DEFAULT.TextOptions.enter?.error}
-          </Text>
+          <Typography mt={10} color={colors.primary}>
+            {formatMessage({
+              id: 'enter_pin_error',
+              defaultMessage: '',
+            })}
+          </Typography>
         )}
       </View>
-      <View style={[DEFAULT.Styles.enter?.content, styles?.content]}>
+      <View style={DEFAULT.Styles.enter?.content}>
         <Pin
           pin={curPin}
-          pinLength={options?.pinLength || DEFAULT.Options.pinLength || 4}
-          style={styles?.pinContainer}
-          pinStyle={[DEFAULT.Styles.enter?.pin, styles?.pin]}
-          enteredPinStyle={[
-            DEFAULT.Styles.enter?.enteredPin,
-            styles?.enteredPin,
-          ]}
+          pinLength={options?.pinLength || DEFAULT.Options.pinLength || 6}
+          pinStyle={DEFAULT.Styles.enter?.pin}
+          enteredPinStyle={DEFAULT.Styles.enter?.enteredPin}
         />
 
         <NumbersPanel
@@ -140,15 +163,13 @@ const EnterLayout = ({
           disabledStyle={styles?.buttonTextDisabled}
         />
       </View>
-      <View style={[DEFAULT.Styles.enter?.footer, styles?.footer]}>
+      <View style={DEFAULT.Styles.enter?.footer}>
         {options?.allowReset && (
           <Pressable
             onPress={onReset}
             style={state => ({opacity: state.pressed ? 0.6 : 1})}>
-            <Text
-              style={[DEFAULT.Styles.enter?.footerText, styles?.footerText]}>
-              {textOptions.enter?.footerText ||
-                DEFAULT.TextOptions.enter?.footerText}
+            <Text style={DEFAULT.Styles.enter?.footerText}>
+              {formatMessage({id: 'reset_pin'})}
             </Text>
           </Pressable>
         )}

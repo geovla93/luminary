@@ -10,6 +10,7 @@ import Sound from 'react-native-sound';
 interface AudioManagerContextProps {
   playRefreshSound: () => void;
   playBregSound: () => void;
+  getAudioFile: (fileUri: string) => any;
 }
 
 const AudioManagerContext = createContext<AudioManagerContextProps>(
@@ -21,7 +22,6 @@ interface AudioManagerProps {
 }
 
 const AudioManager = ({children}: AudioManagerProps) => {
-  // TODO: Add a loading screen while loading the audio files
   const refreshSound = useRef<any>(null);
   const bregSound = useRef<any>(null);
 
@@ -50,11 +50,22 @@ const AudioManager = ({children}: AudioManagerProps) => {
     }
   };
 
+  const getAudioFile = (fileUri: string) => {
+    try {
+      const sound = new Sound(fileUri);
+      sound.setCurrentTime(0);
+      return sound;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <AudioManagerContext.Provider
       value={{
         playRefreshSound,
         playBregSound,
+        getAudioFile,
       }}>
       {children}
     </AudioManagerContext.Provider>
